@@ -19,7 +19,7 @@
 #define PEC "Please enter content:"
 //using namespace std;
 typedef struct SZN {
-	//GetCharMax=126,»ñÈ¡ÊäÈë²¢·µ»Øchar
+	//GetCharMax=126,è·å–è¾“å…¥å¹¶è¿”å›char
 	inline char* f_getstr_(void) {
 		char getname_[127];
 		std::cin.getline(getname_, 126);
@@ -27,19 +27,19 @@ typedef struct SZN {
 		strcpy(result_, getname_);
 		return result_;
 	};
-	//GetCharMax=126,»ñÈ¡´øĞÅÏ¢ÌáÊ¾µÄÊäÈë,²¢·µ»Øchar
+	//GetCharMax=126,è·å–å¸¦ä¿¡æ¯æç¤ºçš„è¾“å…¥,å¹¶è¿”å›char
 	inline char* getstr(std::string _message) {
 		//cout.clear();
 		std::cout << _message;
 		char* result_ = f_getstr_();
 		return result_;
 	};
-	//Çå¿ÕÊäÈëÁ÷
+	//æ¸…ç©ºè¾“å…¥æµ
 	inline int ignore() {
 		return std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n') ? 1 : 0;
 	};
 	int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
-	//»ñÈ¡ÏµÍ³Ê±¼ä
+	//è·å–ç³»ç»Ÿæ—¶é—´
 	inline SZN GetSystemTime() {
 		SZN _getst;
 		time_t rawtime;
@@ -56,33 +56,33 @@ typedef struct SZN {
 	};
 }SZN_;
 typedef struct SZN_MATH {
-	//ÇóÖ±Ïß¾àÀë
+	//æ±‚ç›´çº¿è·ç¦»
 	inline double distance(double x, double y, double z) {
 		return pow((pow(x, 2) + pow(y, 2) + pow(z, 2)), 0.5);
 	};
-	//ÏßĞÔº¯Êı
+	//çº¿æ€§å‡½æ•°
 	inline double Linear_function(double k, double b, double x) {
 		return k * x + b;
 	};
-	//Èı½ÇĞÎÃæ»ı(3±ß)
+	//ä¸‰è§’å½¢é¢ç§¯(3è¾¹)
 	inline double S_triangle_3s(double a, double b, double c) {
 		double p = (a + b + c) / 2;
 		return pow(p * (p - a) * (p - b) * (p - c), 0.5);
 	};
-	//Ô²Ãæ»ı
+	//åœ†é¢ç§¯
 	inline double S_circle(double r) {
 		return pi * r * r;
 	};
-	//ÇòÌå±íÃæ»ı
+	//çƒä½“è¡¨é¢ç§¯
 	inline double S_globe(double r) {
 		return 4 * pi * r * r;
 	};
-	//ÇòÌåÌå»ı
+	//çƒä½“ä½“ç§¯
 	inline double V_globe(double r) {
 		return 4 * pi * r * r * r / 3;
 	};
-	//Ò»Ôª¶ş´ÎÇó¸ù,·µ»ØÖ¸ÏòÊı×é[4]µÄÖ¸Õë(²»ÊÍ·ÅÄÚ´æ!)(kurzer::quadratic_ÊÍ·Å)
-	//{¸ù1Êµ²¿,¸ù2Êµ²¿,¸ù1Ğé²¿,¸ù2Ğé²¿}<<µØÖ·
+	//ä¸€å…ƒäºŒæ¬¡æ±‚æ ¹,è¿”å›æŒ‡å‘æ•°ç»„[4]çš„æŒ‡é’ˆ(ä¸é‡Šæ”¾å†…å­˜!)(kurzer::quadratic_é‡Šæ”¾)
+	//{æ ¹1å®éƒ¨,æ ¹2å®éƒ¨,æ ¹1è™šéƒ¨,æ ¹2è™šéƒ¨}<<åœ°å€
 	inline double* quadratic_function(double a, double b, double c) {
 		//using namespace std;
 		double delta = b * b - 4 * a * c;
@@ -105,7 +105,7 @@ typedef struct SZN_MATH {
 		};
 	};
 }_SZN_MATH;
-//»ñÈ¡Ê±¼ä,·µ»Ø½á¹¹SZN
+//è·å–æ—¶é—´,è¿”å›ç»“æ„SZN
 inline SZN GETST() {
 	SZN _;
 	return _.GetSystemTime();
@@ -121,7 +121,7 @@ public:
 	double quadratic_d(double a, double b, double c, int sub);
 	double* quadratic_(double a, double b, double c);
 };
-//GetCharMax=126,»ñÈ¡ÊäÈë²¢·µ»Øchar
+//GetCharMax=126,è·å–è¾“å…¥å¹¶è¿”å›char
 inline char* kurzer::f_getstr_(void) {
 	char getname_[127];
 	std::cin.getline(getname_, 126);
@@ -129,18 +129,18 @@ inline char* kurzer::f_getstr_(void) {
 	strcpy(result_, getname_);
 	return result_;
 };
-//GetCharMax=126,»ñÈ¡´øĞÅÏ¢ÌáÊ¾µÄÊäÈë,²¢·µ»Øchar
+//GetCharMax=126,è·å–å¸¦ä¿¡æ¯æç¤ºçš„è¾“å…¥,å¹¶è¿”å›char
 inline char* kurzer::getstr(std::string _message) {
 	//cout.clear();
 	std::cout << _message;
 	char* result_ = f_getstr_();
 	return result_;
 };
-//Çå¿ÕÊäÈëÁ÷
+//æ¸…ç©ºè¾“å…¥æµ
 inline int kurzer::ignore() {
 	return std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n') ? 1 : 0;
 };
-//»ñÈ¡ÏµÍ³Ê±¼ä
+//è·å–ç³»ç»Ÿæ—¶é—´
 inline SZN kurzer::GetSystemTime() {
 	SZN _getst;
 	time_t rawtime;
@@ -155,8 +155,8 @@ inline SZN kurzer::GetSystemTime() {
 	_getst.second = ptminfo->tm_sec;
 	return _getst;
 };
-//Ò»Ôª¶ş´Î(ÊÍ·ÅÄÚ´æ)
-//sub{¸ù1Êµ²¿,¸ù2Êµ²¿,¸ù1Ğé²¿,¸ù2Ğé²¿}
+//ä¸€å…ƒäºŒæ¬¡(é‡Šæ”¾å†…å­˜)
+//sub{æ ¹1å®éƒ¨,æ ¹2å®éƒ¨,æ ¹1è™šéƒ¨,æ ¹2è™šéƒ¨}
 inline double kurzer::quadratic_d(double a, double b, double c, int sub) {
 	kurzer kur;
 	double* p = kur.math().quadratic_function(a, b, c);
@@ -164,19 +164,19 @@ inline double kurzer::quadratic_d(double a, double b, double c, int sub) {
 	delete[] p;
 	return val;
 };
-//Ò»Ôª¶ş´Î(²»ÊÍ·ÅÄÚ´æ),·µ»Ø*p
-//p{¸ù1Êµ²¿,¸ù2Êµ²¿,¸ù1Ğé²¿,¸ù2Ğé²¿}
+//ä¸€å…ƒäºŒæ¬¡(ä¸é‡Šæ”¾å†…å­˜),è¿”å›*p
+//p{æ ¹1å®éƒ¨,æ ¹2å®éƒ¨,æ ¹1è™šéƒ¨,æ ¹2è™šéƒ¨}
 inline double* kurzer::quadratic_(double a, double b, double c) {
 	kurzer kur;
 	double* p = kur.math().quadratic_function(a, b, c);
 	return p;
 };
-//Á´½Ó SZN
+//é“¾æ¥ SZN
 inline SZN kurzer::szn() {
 	SZN _;
 	return _;
 };
-//Á´½Ó math()
+//é“¾æ¥ math()
 inline SZN_MATH kurzer::math() {
 	SZN_MATH _;
 	return _;
