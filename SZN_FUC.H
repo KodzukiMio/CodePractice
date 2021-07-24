@@ -17,10 +17,10 @@
 #define e 2.718281828459045
 #define eps   1e-10
 #define PEC "Please enter content:"
-//using namespace std;
+using namespace std;
 typedef struct SZN {
 	//GetCharMax=126,获取输入并返回char
-	inline char* f_getstr_(void) {
+	inline char* getstr(void) {
 		char getname_[127];
 		std::cin.getline(getname_, 126);
 		char* result_ = new char[strlen(getname_) + 1];
@@ -31,7 +31,7 @@ typedef struct SZN {
 	inline char* getstr(std::string _message) {
 		//cout.clear();
 		std::cout << _message;
-		char* result_ = f_getstr_();
+		char* result_ = getstr();
 		return result_;
 	};
 	//清空输入流
@@ -112,17 +112,19 @@ inline SZN GETST() {
 }
 class kurzer {
 public:
-	char* f_getstr_(void);
+	char* getstr(void);
 	int ignore();
 	SZN GetSystemTime();
 	char* getstr(std::string _message);
 	SZN szn();
 	SZN_MATH math();
-	double quadratic_d(double a, double b, double c, int sub);
-	double* quadratic_(double a, double b, double c);
+	double quadratic(double a, double b, double c, int sub = 0);
+	double* quadratic(double a, double b, double c);
+	template <class T>
+	void Swap(T& a, T& b);
 };
 //GetCharMax=126,获取输入并返回char
-inline char* kurzer::f_getstr_(void) {
+inline char* kurzer::getstr(void) {
 	char getname_[127];
 	std::cin.getline(getname_, 126);
 	char* result_ = new char[strlen(getname_) + 1];
@@ -133,7 +135,7 @@ inline char* kurzer::f_getstr_(void) {
 inline char* kurzer::getstr(std::string _message) {
 	//cout.clear();
 	std::cout << _message;
-	char* result_ = f_getstr_();
+	char* result_ = getstr();
 	return result_;
 };
 //清空输入流
@@ -157,16 +159,16 @@ inline SZN kurzer::GetSystemTime() {
 };
 //一元二次(释放内存)
 //sub{根1实部,根2实部,根1虚部,根2虚部}
-inline double kurzer::quadratic_d(double a, double b, double c, int sub) {
+inline double kurzer::quadratic(double a, double b, double c, int sub) {
 	kurzer kur;
 	double* p = kur.math().quadratic_function(a, b, c);
 	double val = *(p + sub);
 	delete[] p;
 	return val;
 };
-//一元二次(不释放内存),返回*p
+//一元二次(不释放内存)
 //p{根1实部,根2实部,根1虚部,根2虚部}
-inline double* kurzer::quadratic_(double a, double b, double c) {
+inline double* kurzer::quadratic(double a, double b, double c) {
 	kurzer kur;
 	double* p = kur.math().quadratic_function(a, b, c);
 	return p;
@@ -180,5 +182,12 @@ inline SZN kurzer::szn() {
 inline SZN_MATH kurzer::math() {
 	SZN_MATH _;
 	return _;
+};
+template <class T>
+inline void kurzer::Swap(T& a, T& b) {
+	T temp;
+	temp = a;
+	a = b;
+	b = temp;
 };
 #endif
