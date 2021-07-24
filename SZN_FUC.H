@@ -188,7 +188,7 @@ template <class T> inline void kurzer::Swap(T& a, T& b) {
 template <class T> inline void kurzer::Swap(T* a, T* b) {
 	T temp; temp = *a; *a = *b; *b = temp;
 };
-template<>void kurzer::Swap<T_s>(T_s& a, T_s& b) {
+template <> void kurzer::Swap<T_s>(T_s& a, T_s& b) {
 	int A; char B; double C; A = a.i; B = a.c; C = a.d;
 	a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C;
 };
