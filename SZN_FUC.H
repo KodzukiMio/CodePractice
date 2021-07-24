@@ -55,6 +55,7 @@ typedef struct SZN {
 		return _getst;
 	};
 }SZN_;
+typedef struct T_s { int i; char c; double d; }T_S;
 typedef struct SZN_MATH {
 	//求直线距离
 	inline double distance(double x, double y, double z) {
@@ -107,8 +108,7 @@ typedef struct SZN_MATH {
 }_SZN_MATH;
 //获取时间,返回结构SZN
 inline SZN GETST() {
-	SZN _;
-	return _.GetSystemTime();
+	SZN _; return _.GetSystemTime();
 }
 class kurzer {
 public:
@@ -120,8 +120,9 @@ public:
 	SZN_MATH math();
 	double quadratic(double a, double b, double c, int sub = 0);
 	double* quadratic(double a, double b, double c);
-	template <class T>
-	void Swap(T& a, T& b);
+	template <class T> void Swap(T& a, T& b);
+	template <class T> void Swap(T* a, T* b);
+	template<>void Swap<T_s>(T_s& a, T_s& b);
 };
 //GetCharMax=126,获取输入并返回char
 inline char* kurzer::getstr(void) {
@@ -175,19 +176,20 @@ inline double* kurzer::quadratic(double a, double b, double c) {
 };
 //链接 SZN
 inline SZN kurzer::szn() {
-	SZN _;
-	return _;
+	SZN _; return _;
 };
 //链接 math()
 inline SZN_MATH kurzer::math() {
-	SZN_MATH _;
-	return _;
+	SZN_MATH _; return _;
 };
-template <class T>
-inline void kurzer::Swap(T& a, T& b) {
-	T temp;
-	temp = a;
-	a = b;
-	b = temp;
+template <class T> inline void kurzer::Swap(T& a, T& b) {
+	T temp; temp = a; a = b; b = temp;
+};
+template <class T> inline void kurzer::Swap(T* a, T* b) {
+	T temp; temp = *a; *a = *b; *b = temp;
+};
+template<>void kurzer::Swap<T_s>(T_s& a, T_s& b) {
+	int A; char B; double C; A = a.i; B = a.c; C = a.d;
+	a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C;
 };
 #endif
