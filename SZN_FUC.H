@@ -191,8 +191,7 @@ template <class T> inline void kurzer::Swap(T* a, T* b) {
 	T temp; temp = *a; *a = *b; *b = temp;
 };
 inline void kurzer::Swap(T_s<int, char, double>& a, T_s<int, char, double>& b) {
-	decltype(a.i) A; decltype(a.c) B; decltype(a.d) C;
-	A = a.i; B = a.c; C = a.d;
+	decltype(a.i) A = a.i; decltype(a.c) B = a.c; decltype(a.d) C = a.d;
 	a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C;
 };
 #endif
