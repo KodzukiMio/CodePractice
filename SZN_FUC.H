@@ -8,10 +8,10 @@
 #include <cstring>
 #include <ctime>
 #include <cmath>
+#include <array>
 //#include <Windows.h>
 //#include <cstdio>
 //#include <vector>
-#include <array>
 //#include <cctype>
 #define pi 3.14159265358979
 #define e 2.718281828459045
@@ -55,7 +55,9 @@ typedef struct SZN {
 		return _getst;
 	};
 }SZN_;
-typedef struct T_s { int i; char c; double d; }T_S;
+template<class T_1, class T_2, class T_3> struct T_s {
+	T_1 i; T_2 c; T_3 d;
+};
 typedef struct SZN_MATH {
 	//求直线距离
 	inline double distance(double x, double y, double z) {
@@ -122,7 +124,7 @@ public:
 	double* quadratic(double a, double b, double c);
 	template <class T> void Swap(T& a, T& b);
 	template <class T> void Swap(T* a, T* b);
-	template<>void Swap<T_s>(T_s& a, T_s& b);
+	void Swap(T_s<int, char, double>& a, T_s<int, char, double>& b);
 };
 //GetCharMax=126,获取输入并返回char
 inline char* kurzer::getstr(void) {
@@ -188,8 +190,9 @@ template <class T> inline void kurzer::Swap(T& a, T& b) {
 template <class T> inline void kurzer::Swap(T* a, T* b) {
 	T temp; temp = *a; *a = *b; *b = temp;
 };
-template <> void kurzer::Swap<T_s>(T_s& a, T_s& b) {
-	int A; char B; double C; A = a.i; B = a.c; C = a.d;
+inline void kurzer::Swap(T_s<int, char, double>& a, T_s<int, char, double>& b) {
+	decltype(a.i) A; decltype(a.c) B; decltype(a.d) C;
+	A = a.i; B = a.c; C = a.d;
 	a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C;
 };
 #endif
