@@ -1,7 +1,7 @@
 //SZN_FUNC.H
 #pragma once
-#ifndef SZN_FUC
-#define SZN_FUC
+#ifndef SZN_FUNC_H_
+#define SZN_FUNC_H_
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,6 +9,7 @@
 #include <ctime>
 #include <cmath>
 #include <array>
+#include <new>
 //#include <Windows.h>
 //#include <cstdio>
 //#include <vector>
@@ -114,6 +115,7 @@ inline SZN GETST() {
 }
 class kurzer {
 public:
+	tm* gettime();
 	char* getstr(void);
 	int ignore();
 	SZN GetSystemTime();
@@ -126,6 +128,8 @@ public:
 	template <class T> void Swap(T* a, T* b);
 	void Swap(T_s<int, char, double>& a, T_s<int, char, double>& b);
 	template<class T1, class T2>  auto Types(T1 x, T2 y) ->decltype(x + y);
+	template<class T> T* store(T name, int size);
+	template<class T> T* store(int size, T* &p);
 };
 //GetCharMax=126,获取输入并返回char
 inline char* kurzer::getstr(void) {
@@ -185,6 +189,12 @@ inline SZN kurzer::szn() {
 inline SZN_MATH kurzer::math() {
 	SZN_MATH _; return _;
 };
+inline tm* kurzer::gettime() {
+	time_t rawtime;
+	time(&rawtime);
+	struct tm* ptminfo = localtime(&rawtime);
+	return ptminfo;
+};
 template <class T> inline void kurzer::Swap(T& a, T& b) {
 	T temp = a; a = b; b = temp;
 };
@@ -195,5 +205,15 @@ inline void kurzer::Swap(T_s<int, char, double>& a, T_s<int, char, double>& b) {
 	decltype(a.i) A = a.i; decltype(a.c) B = a.c; decltype(a.d) C = a.d;
 	a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C;
 };
-template <class T1, class T2> auto kurzer::Types(T1 x, T2 y) ->decltype(x + y) { return x + y; };
+template <class T1, class T2> auto kurzer::Types(T1 x, T2 y) ->decltype(x + y) {
+	return x + y;
+};
+template<class T> T* kurzer::store(T name, int size) {
+	T* p = new (name)T[size*sizeof(T)];
+	return p;
+};
+template<class T> T* kurzer::store(int size, T* &p) {
+	p = new T[size * sizeof(T)];
+	return p;
+};
 #endif
