@@ -97,6 +97,7 @@ namespace KUR {
 #include <ctime>
 #include<Windows.h>
 #include <tchar.h>
+#include <functional>
 #ifdef ENABLE_ZIP
 #define Windows_ENABLE_KURZER
 //Please add zip.cpp, unzip.cpp to the project directory
@@ -146,6 +147,10 @@ namespace KUR {
 #define sptrn(name,type,value)sptr_(name,type,new type(value))
 #define _ptrtype(_Pfn)(typeid(*_Pfn).name())
 #define newptr(name,type,value) type *name=new type(value)
+#define KEY_DOWN(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1:0)
+#define CLICK(time) mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);Sleep(time);mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+#define MOUSESET(x,y) MouseMove(x,y)
+#define MOUSEOFFSET(_x,_y) 	{POINT __MOUSE_POINT_POSITION;::GetCursorPos(&__MOUSE_POINT_POSITION);MOUSESET(__MOUSE_POINT_POSITION.x+_x,__MOUSE_POINT_POSITION.y+_y);}
 typedef unsigned short int KCDSTR;
 namespace KUR {
 	const double pi = 3.14159265358979;
@@ -165,8 +170,8 @@ namespace KUR {
 		inline double S_circle(double r) { return pi * r * r; };
 		inline double S_globe(double r) { return 4 * pi * r * r; };
 		inline double V_globe(double r) { return 4 * pi * r * r * r / 3; };
-		//一元二次求根,返回数组[4]
-		//{根1实部,根2实部,根1虚部,根2虚部}<<地址
+		//Unary quadratic root, return array[4]
+		//{root 1 real part, root 2 real part, root 1 imaginary part, root 2 imaginary part}<<address
 		inline double* quadratic_function(double a, double b, double c) { double delta = b * b - 4 * a * c; if (delta < 0) { double d_1 = pow(-delta, 0.5) / (2 * a); double d_2 = -b / (2 * a); double* p = new double[4]{ d_2,d_2,d_1,-d_1 }; return p; } else if (delta <= eps) { double _value = -b / (2 * a); double* p = new double[4]{ _value,_value ,0.0,0.0 }; return p; } else { double _value1 = -b + pow(delta, 0.5); double _value2 = -b - pow(delta, 0.5); double* p = new double[4]{ (_value1 / (2 * a)),(_value2 / (2 * a)),0.0,0.0 }; return p; }; };
 	}_SZN_MATH;
 	inline SZN GETST() { SZN _; return _.GetSystemTime(); };
@@ -194,9 +199,9 @@ namespace KUR {
 	inline char* kurzer::getstr(void) { char getname_[127]; std::cin.getline(getname_, 126); char* result_ = new char[strlen(getname_) + 1]; strcpy(result_, getname_); result_[strlen(getname_)] = '\0'; return result_; };
 	inline char* kurzer::getstr(std::string _message) { std::cout << _message; char* result_ = getstr(); return result_; };
 	inline SZN kurzer::GetSystemTime() { SZN _getst; time_t rawtime; struct tm* ptminfo; time(&rawtime); ptminfo = localtime(&rawtime); _getst.year = ptminfo->tm_year; _getst.month = ptminfo->tm_mon; _getst.day = ptminfo->tm_mday; _getst.hour = ptminfo->tm_hour; _getst.minute = ptminfo->tm_min; _getst.second = ptminfo->tm_sec; return _getst; };
-	//sub{根1实部,根2实部,根1虚部,根2虚部}
+	//sub{root 1 real part, root 2 real part, root 1 imaginary part, root 2 imaginary part}
 	inline double kurzer::quadratic(double a, double b, double c, int sub) { kurzer kur; double* p = kur.math().quadratic_function(a, b, c); double val = *(p + sub); delete[] p; return val; };
-	//p{根1实部,根2实部,根1虚部,根2虚部}
+	//p{root 1 real part, root 2 real part, root 1 imaginary part, root 2 imaginary part}
 	inline double* kurzer::quadratic(double a, double b, double c) { kurzer kur; double* p = kur.math().quadratic_function(a, b, c); return p; };
 	inline SZN kurzer::szn() { SZN _; return _; };
 	inline SZN_MATH kurzer::math() { SZN_MATH _; return _; };
@@ -206,7 +211,7 @@ namespace KUR {
 	inline void kurzer::Swap(T_s<int, char, double>& a, T_s<int, char, double>& b) { decltype(a.i) A = a.i; decltype(a.c) B = a.c; decltype(a.d) C = a.d; a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C; };
 	template <class T1, class T2> auto kurzer::Types(T1 x, T2 y) ->decltype(x + y) { return x + y; };
 	template<class T> T* kurzer::store(int size, T*& p) { return (new T[size * sizeof(T)]); };
-
+	void MouseMove(int x, int y) { double fScreenWidth = ::GetSystemMetrics(SM_CXSCREEN) - 1; double fScreenHeight = ::GetSystemMetrics(SM_CYSCREEN) - 1; double fx = x * (65535.0f / fScreenWidth); double fy = y * (65535.0f / fScreenHeight); mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE, fx, fy, 0, 0); };
 	tm TIME() { time_t now = time(0); tm* gmtm = gmtime(&now); return *gmtm; };
 	wchar_t* ToWchar_N(const char* c) { size_t cSize = strlen(c) + 1; wchar_t* wc = new wchar_t[cSize]; mbstowcs(wc, c, cSize); return wc; };
 	bool Divisible(unsigned long long _Val, unsigned long long _Num) { double a = (double)_Val / (double)_Num; if (a - (double)(unsigned long long)a < 1e-6) { return true; }; return false; };
@@ -233,7 +238,7 @@ namespace KUR {
 																																																										 template<class T> class Kdata;
 																																																										 class Object {
 																																																										 public:
-																																																											 std::string Alias;
+																																																											 int Alias = 0;
 																																																											 template<class T> friend class Stack;
 																																																											 friend class Kstring;
 																																																											 friend class Number;
@@ -248,27 +253,27 @@ namespace KUR {
 																																																											 size_t GetHashCode() { std::hash<int> hash_int; return hash_int._Do_hash((int)(int64_t)this); };
 																																																											 Object& ValueOf() { return *this; };
 																																																										 };
-																																																										 template<class T>class Knode :public Object {//TODO
-																																																										 public:
-																																																											 Knode(T& item_) :item(item_) {};
-																																																											 Knode() {};
-																																																											 Knode& operator=(Knode& kn) { this->item = kn.item; p_next = kn.p_next; return *this; };
-																																																											 T& item;
-																																																											 Knode* p_next;
-																																																										 };
-																																																										 template<class T>class Kiterator :public Object {//TODO
-																																																										 public:
-																																																											 Knode<T>* pt = nullptr;
-																																																											 Kiterator() {};
-																																																											 Kiterator(Knode<T>* p) :pt(p) {};
-																																																											 T& operator*() { return pt->item; };
-																																																											 Kiterator& operator++() { pt = pt->p_next; return *this; };//++i
-																																																											 Kiterator operator++(int) { Kiterator temp = *this; pt = pt->p_next; return temp; };//i++
-																																																											 Kiterator& operator=(Kiterator& ki) { this->pt = ki.pt; return *this; };
-																																																											 bool operator==(Kiterator& ki) { return this->pt == ki.pt; };
-																																																											 bool operator!=(Kiterator& ki) { return !this->operator==(ki); };
-																																																											 Kiterator find(Kiterator& head, Kiterator& end, T& t) { Kiterator start = head; for (; start != end; ++start) { if (*start == t) { return start; }; }; return 0; };
-																																																										 };
+																																																										 //template<class T>class Knode :public Object {//TODO
+																																																										 //public:
+																																																											// Knode(T& item_) :item(item_) {};
+																																																											// Knode() {};
+																																																											// Knode& operator=(Knode& kn) { this->item = kn.item; p_next = kn.p_next; return *this; };
+																																																											// T& item;
+																																																											// Knode* p_next;
+																																																										 //};
+																																																										 //template<class T>class Kiterator :public Object {//TODO
+																																																										 //public:
+																																																											// Knode<T>* pt = nullptr;
+																																																											// Kiterator() {};
+																																																											// Kiterator(Knode<T>* p) :pt(p) {};
+																																																											// T& operator*() { return pt->item; };
+																																																											// Kiterator& operator++() { pt = pt->p_next; return *this; };//++i
+																																																											// Kiterator operator++(int) { Kiterator temp = *this; pt = pt->p_next; return temp; };//i++
+																																																											// Kiterator& operator=(Kiterator& ki) { this->pt = ki.pt; return *this; };
+																																																											// bool operator==(Kiterator& ki) { return this->pt == ki.pt; };
+																																																											// bool operator!=(Kiterator& ki) { return !this->operator==(ki); };
+																																																											// Kiterator find(Kiterator& head, Kiterator& end, T& t) { Kiterator start = head; for (; start != end; ++start) { if (*start == t) { return start; }; }; return 0; };
+																																																										 //};
 																																																										 class Kstring :public Object {
 																																																										 private:
 																																																											 char* data = NULL;
@@ -283,6 +288,7 @@ namespace KUR {
 																																																											 Kstring(const Kstring& str) { len = str.size(); data = new char[len + 1]; strcpy(data, str.str()); };
 																																																											 Kstring operator+(const Kstring& str)const { Kstring newstr; newstr.len = len + str.size(); newstr.data = new char[newstr.len + 1]; strcpy(newstr.data, data); strcat(newstr.data, str.data); return newstr; };
 																																																											 Kstring& operator=(const Kstring& str) { if (this == &str) { return*this; }; delete[] data; len = str.len; data = new char[len + 1]; strcpy(data, str.str()); return*this; };
+																																																											 Kstring& operator=(Kstring&& str)noexcept { if (this == &str) { return *this; }; delete this->data; this->data = str.data; str.data = nullptr; return *this; };
 																																																											 Kstring& operator+=(const Kstring& str) { *this = *this + str; return *this; };
 																																																											 bool operator==(const Kstring& str) const { if (len != str.len) { return false; } else { return strcmp(data, str.data) ? false : true; }; };
 																																																											 char& operator[](int n) const { if (n >= int(len)) { return data[len - 1]; } else if (n < 0 && (-n) <= int(len)) { return data[int(len) + n]; } else if ((-n) > int(len)) { return data[0]; } else { return data[n]; }; };
@@ -463,7 +469,7 @@ namespace KUR {
 																																																											 //mode
 																																																											 static inline std::string FileReadAsString(const std::string res, int mode = 0) { KUR::Stack<KUR::Kstring>* K = FileReadAsStack(res, mode); std::string ress = KUR::Stack<std::string>::AsString(*K); delete K; return ress; };
 																																																										 };
-																																																										 //内存回收有缺陷!!!
+																																																										 //The memory recovery is defective!!!
 																																																										 class KdataRead :public Object {
 																																																										 private:
 																																																											 KUR::Kstring err;
@@ -496,9 +502,33 @@ namespace KUR {
 																																																											 void Save() { std::fstream F_(address.str(), std::ios::out); for (int i = 0; i < this_len; i++) { F_ << "@$%" << (*this)[i].name << StackIntAsString(*(*this)[i].sub).str() << "\"" << *KUR::KMiscellaneous::encryption(keys.str(), KUR::ToWstring_((*this)[i].Source.str())) << "\"\"$@,\n"; }; F_.close(); };
 																																																										 };
 																																																										 KUR::Kdata<KUR::Kstring>& end(KUR::KdataRead* kr) { using namespace KUR; return kr->Check(kr->GetLen()); };
+
+																																																										 //The parameter T is the first parameter of the function (class usage)
+																																																										 template<class Cl_Pn, class T>class Bind2c :public Object {
+																																																										 public:
+																																																											 T val_;
+																																																											 Cl_Pn* clp_;
+																																																											 explicit Bind2c(Cl_Pn& clp, const T t) :val_(t) { clp_ = &clp; };
+																																																											 template<class C> void operator()(const C t_) { return (*clp_)(val_, t_); };
+																																																										 };
+
+																																																										 template<class _T, class _Bind>void for_each_bind(_T _Beg, _T _End, _Bind& _bind) { while (_Beg != _End) { _bind(*_Beg); _Beg++; }; };
+
+																																																										 //The parameter T is the first parameter of the function (funciton usage)
+																																																										 template<class Cl_Pn, class T, typename...Args>class Bindf :public Object {
+																																																										 public:
+																																																											 T val_;
+																																																											 Cl_Pn(*clpn)(Args...args);
+																																																											 explicit Bindf(Cl_Pn(*cl_pn)(Args...args), const T t) :val_(t) { clpn = cl_pn; };
+																																																											 template<typename...Args_>Cl_Pn operator()(const Args_&...args) { return (*clpn)(val_, args...); };
+																																																											 template<class Ty_> Cl_Pn operator()(const Ty_ t_) { return (*clpn)(val_, t_); };
+																																																										 };
+																																																										 /*template<typename T>void show(T t) { std::cout << t; };
+																																																										 template<typename T, typename...Args>void show(T t, const Args&...args) { std::cout << t; KUR::show(args...); };*/
+
 #ifdef Windows_ENABLE_KURZER
 #ifndef USE_ASCII
-																																																										 //通过进程名（带后缀.exe）获取进程句柄
+																																																										 //Get process handle by process name (with suffix .exe)
 																																																										 HANDLE GetProcessHandle(int nID) { return OpenProcess(PROCESS_ALL_ACCESS, FALSE, nID); };
 																																																										 HANDLE GetProcessHandle(LPCWSTR lpName) { HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (INVALID_HANDLE_VALUE == hSnapshot) { return NULL; }; PROCESSENTRY32 pe = { sizeof(pe) }; BOOL fOk; for (fOk = Process32First(hSnapshot, &pe); fOk; fOk = Process32Next(hSnapshot, &pe)) { if (!_tcsicmp(pe.szExeFile, lpName)) { CloseHandle(hSnapshot); return GetProcessHandle(pe.th32ProcessID); }; }; return NULL; };
 #endif // !USE_ASCII
@@ -598,12 +628,12 @@ namespace KUR {
 #define SET_VOLUME(x) KUR::SetVolum(x)
 #define GET_VOLUME KUR::GetVolume()
 #define VOLUME_END CoUninitialize()
-//设置系统音量(音量范围:0~100,音量为0时静音)
+//Set the system volume (volume range: 0~100, mute when the volume is 0)
 																																																										 bool SetVolum(int volume) { bool ret = false; HRESULT hr; IMMDeviceEnumerator* pDeviceEnumerator = 0; IMMDevice* pDevice = 0; IAudioEndpointVolume* pAudioEndpointVolume = 0; IAudioClient* pAudioClient = 0; try { hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pDeviceEnumerator); if (FAILED(hr)) throw "CoCreateInstance"; hr = pDeviceEnumerator->GetDefaultAudioEndpoint(eRender, eMultimedia, &pDevice); if (FAILED(hr)) throw "GetDefaultAudioEndpoint"; hr = pDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&pAudioEndpointVolume); if (FAILED(hr)) throw "pDevice->Active"; hr = pDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&pAudioClient); if (FAILED(hr)) throw "pDevice->Active"; float fVolume; fVolume = volume / 100.0f; hr = pAudioEndpointVolume->SetMasterVolumeLevelScalar(fVolume, &GUID_NULL); if (FAILED(hr)) throw "SetMasterVolumeLevelScalar"; pAudioClient->Release(); pAudioEndpointVolume->Release(); pDevice->Release(); pDeviceEnumerator->Release(); ret = true; } catch (...) { if (pAudioClient) pAudioClient->Release(); if (pAudioEndpointVolume) pAudioEndpointVolume->Release(); if (pDevice) pDevice->Release(); if (pDeviceEnumerator) pDeviceEnumerator->Release(); throw; }; return ret; };
-																																																										 //获取系统音量
+																																																										 //Get system volume
 																																																										 int GetVolume() { int volumeValue = 0; HRESULT hr; IMMDeviceEnumerator* pDeviceEnumerator = 0; IMMDevice* pDevice = 0; IAudioEndpointVolume* pAudioEndpointVolume = 0; IAudioClient* pAudioClient = 0; try { hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pDeviceEnumerator); if (FAILED(hr)) { throw "CoCreateInstance"; }; hr = pDeviceEnumerator->GetDefaultAudioEndpoint(eRender, eMultimedia, &pDevice); if (FAILED(hr)) { throw "GetDefaultAudioEndpoint"; }; hr = pDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&pAudioEndpointVolume); if (FAILED(hr)) { throw "pDevice->Active"; }; hr = pDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&pAudioClient); if (FAILED(hr)) { throw "pDevice->Active"; }; float fVolume; hr = pAudioEndpointVolume->GetMasterVolumeLevelScalar(&fVolume); if (FAILED(hr)) { throw "SetMasterVolumeLevelScalar"; }; pAudioClient->Release(); pAudioEndpointVolume->Release(); pDevice->Release(); pDeviceEnumerator->Release(); volumeValue = fVolume * 100; } catch (...) { if (pAudioClient) pAudioClient->Release(); if (pAudioEndpointVolume) pAudioEndpointVolume->Release(); if (pDevice) pDevice->Release(); if (pDeviceEnumerator) pDeviceEnumerator->Release(); throw; }; return volumeValue; };
-																																																										 //buf为需要调节音量的音频数据块首地址指针，size为长度
-																																																										 //uRepeat为重复次数，通常设为1,vol为增益倍数,可以小于1
+																																																										 //buf is the first address pointer of the audio data block that needs to adjust the volume, size is the length
+																																																										 //uRepeat is the number of repetitions, usually set to 1, and vol is the gain multiple, which can be less than 1
 																																																										 void RaisePCMVolume(char* buf, UINT32 size, UINT32 uRepeat, double vol) { if (!size) { return; }; for (int i = 0; i < size; i += 2) { short wData; wData = MAKEWORD(buf[i], buf[i + 1]); long dwData = wData; for (int j = 0; j < uRepeat; j++) { dwData = dwData * vol; if (dwData < -0x8000) { dwData = -0x8000; } else if (dwData > 0x7FFF) { dwData = 0x7FFF; }; }; wData = LOWORD(dwData); buf[i] = LOBYTE(wData); buf[i + 1] = HIBYTE(wData); }; };
 																																																										 void setvol(int vol) { VOLUME_START; SET_VOLUME(vol); VOLUME_END; };
 #endif // ENABLE_VOLUME																																															
