@@ -227,6 +227,7 @@ namespace KUR {
 	void GetFileNames(std::string path, std::vector<std::string>& files) { using namespace std; intptr_t hFile = 0; struct _finddata_t fileinfo; std::string p; if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1) { do { if ((fileinfo.attrib & _A_SUBDIR)) { if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)GetFileNames(p.assign(path).append("\\").append(fileinfo.name), files); } else { files.push_back(p.assign(path).append("\\").append(fileinfo.name)); }; } while (_findnext(hFile, &fileinfo) == 0); _findclose(hFile); }; };
 	std::string GetStringByWchar(const WCHAR* wszString) { std::string strString; if (wszString != NULL) { std::wstring ws(wszString); strString.assign(ws.begin(), ws.end()); }; return strString; };
 	std::wstring GetWStringByChar(const char* szString) { std::wstring wstrString; if (szString != NULL) { std::string str(szString); wstrString.assign(str.begin(), str.end()); }; return wstrString; };
+	int Rand_(int beg, int end) { srand((int)(time(NULL))); return ((rand() % (end - beg + 1)) + beg); };
 	std::string CODE(char* path) { std::ifstream fin(path, std::ios::binary); unsigned char  s2; fin.read((char*)&s2, sizeof(s2)); int p = s2 << 8; fin.read((char*)&s2, sizeof(s2)); p += s2; std::string code; switch (p) { case 0xfffe:code = "Unicode"; break; case 0xfeff:code = "Unicode big endian"; break; case 0xefbb:code = "UTF-8"; break; default:code = "ANSI"; }; fin.close(); return code; };
 
 
