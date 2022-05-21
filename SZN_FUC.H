@@ -6,8 +6,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
-#define _Main_s int main(){
-#define _Main_e system("pause");return 0;};
 
 #ifdef ENABLE_SZN_OPE
 #include <gl/glut.h>
@@ -18,70 +16,10 @@
 #include<glfw3.h>
 #endif // ENABLE_SZN_OPE
 
-#ifdef _ENABLE_MSD
-#define _ct const
-#define _u using
-#define _r return
-#define _fr friend
-#define _v void
-#define _i int
-#define _c char
-#define _sid signed
-#define _d double
-#define _l long
-#define _b bool
-#define _f float
-#define _w wchar_t
-#define _un unsigned
-#define _sh short
-#define _ns namespace
-#define _cs constexpr static
-#define _st std::
-#define _bs ){
-#define _be };
-#define _br ()
-#define _brs ();
-#define _brb (){
-#define _s_ (*this)
-#define _uns _u _ns
-#define _o operator
-#define __rb >>(
-#define __lb <<(
-#define _osr _o __rb
-#define _osl _o __lb
-#define _oe _o=(
-#define _t template<
-#define _2t _t> 
-#define _tc _t class T>
-#define _ttc _t typename Ty_>class TC
-#define _ty <Ty_>
-#define _tttc _t _ttc >
-#define _tttct _t _ttc ,typename Ty >
-#define _tcv _tc _v
-#define _tci _tc inline
-#define _tciv _tci _v
-#define _si static inline
-#define _siv _si _v
-#define _iv inline _v
-#define _def typedef
-#define _sv static _v
-#endif // Macro_symbol_definition
-
-#ifdef ENABLE_ERRTYPE
-namespace KUR {
-	using cahr = char;
-	using douebl = double;
-	using douebnl = double;
-	using doubel = double;
-	using doeybl = double;
-	using doyuebl = double;
-	using flaor = float;
-	using flaot = float;
-	using itn = int;
-}
-#endif // ENABLE_ERRTYPE
 #include <iostream>
 #include <fstream>
+#include <stdio.h>
+#include <atlstr.h>
 #include <string>
 #include <cmath>
 #include <new>
@@ -98,6 +36,7 @@ namespace KUR {
 #include<Windows.h>
 #include <tchar.h>
 #include <functional>
+#include <io.h>
 #ifdef ENABLE_ZIP
 #define Windows_ENABLE_KURZER
 //Please add zip.cpp, unzip.cpp to the project directory
@@ -118,11 +57,6 @@ namespace KUR {
 #include <audioclient.h>
 #endif // ENABLE_VOLUME
 
-//#include <ctime>
-//#include<bitset>
-//#include <array>
-//#include <cstdio>
-//#include <cctype>
 #ifdef ENABLE_COLOR
 #define Windows_ENABLE_KURZER
 #endif
@@ -156,61 +90,6 @@ namespace KUR {
 	const double pi = 3.14159265358979;
 	const double e = 2.718281828459045;
 	const double eps = 1e-10;
-	typedef struct SZN {
-		inline char* getstr(void) { char getname_[127]; std::cin.getline(getname_, 126); char* result_ = new char[strlen(getname_) + 1]; strcpy(result_, getname_); result_[strlen(getname_)] = '\0'; return result_; };
-		inline char* getstr(_In_ std::string _message) { std::cout << _message; char* result_ = getstr(); return result_; };
-		int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
-		inline SZN GetSystemTime() { SZN _getst; time_t rawtime; struct tm* ptminfo; time(&rawtime); ptminfo = localtime(&rawtime); _getst.year = ptminfo->tm_year; _getst.month = ptminfo->tm_mon; _getst.day = ptminfo->tm_mday; _getst.hour = ptminfo->tm_hour; _getst.minute = ptminfo->tm_min; _getst.second = ptminfo->tm_sec; return _getst; };
-	}SZN_;
-	template< class T_1, class T_2, class T_3 > struct T_s { T_1 i; T_2 c; T_3 d; };
-	typedef struct SZN_MATH {
-		inline double distance(double x, double y, double z) { return pow((pow(x, 2) + pow(y, 2) + pow(z, 2)), 0.5); };
-		inline double Linear_function(double k, double b, double x) { return k * x + b; };
-		inline double S_triangle_3s(double a, double b, double c) { double p = (a + b + c) / 2; return pow(p * (p - a) * (p - b) * (p - c), 0.5); };
-		inline double S_circle(double r) { return pi * r * r; };
-		inline double S_globe(double r) { return 4 * pi * r * r; };
-		inline double V_globe(double r) { return 4 * pi * r * r * r / 3; };
-		//Unary quadratic root, return array[4]
-		//{root 1 real part, root 2 real part, root 1 imaginary part, root 2 imaginary part}<<address
-		inline double* quadratic_function(double a, double b, double c) { double delta = b * b - 4 * a * c; if (delta < 0) { double d_1 = pow(-delta, 0.5) / (2 * a); double d_2 = -b / (2 * a); double* p = new double[4]{ d_2,d_2,d_1,-d_1 }; return p; } else if (delta <= eps) { double _value = -b / (2 * a); double* p = new double[4]{ _value,_value ,0.0,0.0 }; return p; } else { double _value1 = -b + pow(delta, 0.5); double _value2 = -b - pow(delta, 0.5); double* p = new double[4]{ (_value1 / (2 * a)),(_value2 / (2 * a)),0.0,0.0 }; return p; }; };
-	}_SZN_MATH;
-	inline SZN GETST() { SZN _; return _.GetSystemTime(); };
-	class kurzer {
-	private:
-	public:
-		tm* gettime();
-		char* getstr(void);
-		SZN GetSystemTime();
-		char* getstr(std::string _message);
-		SZN szn();
-		SZN_MATH math();
-		double quadratic(double a, double b, double c, int sub = 0);
-		double* quadratic(double a, double b, double c);
-		template<class T> void Swap(T& a, T& b);
-		template<class T> void Swap(T* a, T* b);
-		void Swap(T_s<int, char, double>& a, T_s<int, char, double>& b);
-		template<class T1, class T2>  auto Types(T1 x, T2 y) ->decltype(x + y);
-		template<class T> T* store(T name, int size);
-		template<class T> T* store(int size, T*& p);
-		kurzer() {};
-		template<class T>kurzer(T _) {};
-		~kurzer() {};
-	};
-	inline char* kurzer::getstr(void) { char getname_[127]; std::cin.getline(getname_, 126); char* result_ = new char[strlen(getname_) + 1]; strcpy(result_, getname_); result_[strlen(getname_)] = '\0'; return result_; };
-	inline char* kurzer::getstr(std::string _message) { std::cout << _message; char* result_ = getstr(); return result_; };
-	inline SZN kurzer::GetSystemTime() { SZN _getst; time_t rawtime; struct tm* ptminfo; time(&rawtime); ptminfo = localtime(&rawtime); _getst.year = ptminfo->tm_year; _getst.month = ptminfo->tm_mon; _getst.day = ptminfo->tm_mday; _getst.hour = ptminfo->tm_hour; _getst.minute = ptminfo->tm_min; _getst.second = ptminfo->tm_sec; return _getst; };
-	//sub{root 1 real part, root 2 real part, root 1 imaginary part, root 2 imaginary part}
-	inline double kurzer::quadratic(double a, double b, double c, int sub) { kurzer kur; double* p = kur.math().quadratic_function(a, b, c); double val = *(p + sub); delete[] p; return val; };
-	//p{root 1 real part, root 2 real part, root 1 imaginary part, root 2 imaginary part}
-	inline double* kurzer::quadratic(double a, double b, double c) { kurzer kur; double* p = kur.math().quadratic_function(a, b, c); return p; };
-	inline SZN kurzer::szn() { SZN _; return _; };
-	inline SZN_MATH kurzer::math() { SZN_MATH _; return _; };
-	inline tm* kurzer::gettime() { time_t rawtime; time(&rawtime); struct tm* ptminfo = localtime(&rawtime); return ptminfo; };
-	template<class T>inline void kurzer::Swap(T& a, T& b) { T temp = a; a = b; b = temp; };
-	template<class T>inline void kurzer::Swap(T* a, T* b) { T temp = *a; *a = *b; *b = temp; };
-	inline void kurzer::Swap(T_s<int, char, double>& a, T_s<int, char, double>& b) { decltype(a.i) A = a.i; decltype(a.c) B = a.c; decltype(a.d) C = a.d; a.i = b.i; a.c = b.c; a.d = b.d; b.i = A; b.c = B; b.d = C; };
-	template <class T1, class T2> auto kurzer::Types(T1 x, T2 y) ->decltype(x + y) { return x + y; };
-	template<class T> T* kurzer::store(int size, T*& p) { return (new T[size * sizeof(T)]); };
 	void MouseMove(int x, int y) { double fScreenWidth = ::GetSystemMetrics(SM_CXSCREEN) - 1; double fScreenHeight = ::GetSystemMetrics(SM_CYSCREEN) - 1; double fx = x * (65535.0f / fScreenWidth); double fy = y * (65535.0f / fScreenHeight); mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE, fx, fy, 0, 0); };
 	tm TIME() { time_t now = time(0); tm* gmtm = gmtime(&now); return *gmtm; };
 	wchar_t* ToWchar_N(const char* c) { size_t cSize = strlen(c) + 1; wchar_t* wc = new wchar_t[cSize]; mbstowcs(wc, c, cSize); return wc; };
@@ -228,10 +107,11 @@ namespace KUR {
 	std::string GetStringByWchar(const WCHAR* wszString) { std::string strString; if (wszString != NULL) { std::wstring ws(wszString); strString.assign(ws.begin(), ws.end()); }; return strString; };
 	std::wstring GetWStringByChar(const char* szString) { std::wstring wstrString; if (szString != NULL) { std::string str(szString); wstrString.assign(str.begin(), str.end()); }; return wstrString; };
 	int Rand_(int beg, int end) { srand((int)(time(NULL))); return ((rand() % (end - beg + 1)) + beg); };
+	void getFiles(std::string path, std::vector<std::string>& files) { using namespace std; intptr_t   hFile = 0; struct _finddata_t fileinfo; string p; if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1) { do { if ((fileinfo.attrib & _A_SUBDIR)) { if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)getFiles(p.assign(path).append("\\").append(fileinfo.name), files); } else { files.push_back(p.assign(path).append("\\").append(fileinfo.name)); }; } while (_findnext(hFile, &fileinfo) == 0); _findclose(hFile); }; };
+	size_t GetFileSize(char* file_) { FILE* file = fopen(file_, "r"); if (file) { size_t size = filelength(fileno(file)); fclose(file); return size; } else { return 0; }; };
+	//Only one can exist at a time
+	template<typename T> T ButtonUpDetection(int charid, T(*Pfn_)()) { if (KEY_DOWN(charid)) { while (KEY_DOWN(charid)); return (*Pfn_)(); }; return 0; };
 	std::string CODE(char* path) { std::ifstream fin(path, std::ios::binary); unsigned char  s2; fin.read((char*)&s2, sizeof(s2)); int p = s2 << 8; fin.read((char*)&s2, sizeof(s2)); p += s2; std::string code; switch (p) { case 0xfffe:code = "Unicode"; break; case 0xfeff:code = "Unicode big endian"; break; case 0xefbb:code = "UTF-8"; break; default:code = "ANSI"; }; fin.close(); return code; };
-
-
-
 																																																										 class Object;
 																																																										 template<class T> class Stack;
 																																																										 class Number;
@@ -275,6 +155,29 @@ namespace KUR {
 																																																											// bool operator!=(Kiterator& ki) { return !this->operator==(ki); };
 																																																											// Kiterator find(Kiterator& head, Kiterator& end, T& t) { Kiterator start = head; for (; start != end; ++start) { if (*start == t) { return start; }; }; return 0; };
 																																																										 //};
+#ifdef ENABLE_MD5
+
+																																																										 class MD5 {
+																																																										 private:
+																																																											 unsigned int tempA, tempB, tempC, tempD, strlength;
+																																																										 public:
+																																																											 constexpr static unsigned int ssssss[64] = { 7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21 };
+																																																											 constexpr static unsigned int TTTTTT[64] = { 0xd76aa478,0xe8c7b756,0x242070db,0xc1bdceee,0xf57c0faf,0x4787c62a,0xa8304613,0xfd469501,0x698098d8,0x8b44f7af,0xffff5bb1,0x895cd7be,0x6b901122,0xfd987193,0xa679438e,0x49b40821,0xf61e2562,0xc040b340,0x265e5a51,0xe9b6c7aa,0xd62f105d,0x02441453,0xd8a1e681,0xe7d3fbc8,0x21e1cde6,0xc33707d6,0xf4d50d87,0x455a14ed,0xa9e3e905,0xfcefa3f8,0x676f02d9,0x8d2a4c8a,0xfffa3942,0x8771f681,0x6d9d6122,0xfde5380c,0xa4beea44,0x4bdecfa9,0xf6bb4b60,0xbebfbc70,0x289b7ec6,0xeaa127fa,0xd4ef3085,0x04881d05,0xd9d4d039,0xe6db99e5,0x1fa27cf8,0xc4ac5665,0xf4292244,0x432aff97,0xab9423a7,0xfc93a039,0x655b59c3,0x8f0ccc92,0xffeff47d,0x85845dd1,0x6fa87e4f,0xfe2ce6e0,0xa3014314,0x4e0811a1,0xf7537e82,0xbd3af235,0x2ad7d2bb,0xeb86d391 };
+																																																											 MD5() { tempA = 0x67452301; tempB = 0xefcdab89; tempC = 0x98badcfe; tempD = 0x10325476; strlength = 0; };
+																																																											 std::string operator()(std::string& src) { return encode(src); };
+																																																										 private:
+																																																											 unsigned int F(unsigned int b, unsigned int c, unsigned int d) { return (b & c) | ((~b) & d); };
+																																																											 unsigned int G(unsigned int b, unsigned int c, unsigned int d) { return (b & d) | (c & (~d)); };
+																																																											 unsigned int H(unsigned int b, unsigned int c, unsigned int d) { return b ^ c ^ d; };
+																																																											 unsigned int I(unsigned int b, unsigned int c, unsigned int d) { return c ^ (b | (~d)); };
+																																																											 unsigned int shift(unsigned int a, unsigned int n) { return (a << n) | (a >> (32 - n)); };
+																																																											 std::string encode(std::string src) { using namespace std; vector<unsigned int> rec = padding(src); for (unsigned int i = 0; i < strlength / 16; i++) { unsigned int num[16]; for (int j = 0; j < 16; j++) { num[j] = rec[i * 16 + j]; }; iterateFunc(num, 16); }; return format(tempA) + format(tempB) + format(tempC) + format(tempD); };
+																																																											 void iterateFunc(unsigned int* X, int size = 16) { using namespace std; unsigned int a = tempA, b = tempB, c = tempC, d = tempD, rec = 0, g, k; for (int i = 0; i < 64; i++) { if (i < 16) { g = F(b, c, d); k = i; } else if (i < 32) { g = G(b, c, d); k = (1 + 5 * i) % 16; } else if (i < 48) { g = H(b, c, d); k = (5 + 3 * i) % 16; } else { g = I(b, c, d); k = (7 * i) % 16; }; rec = d; d = c; c = b; b = b + shift(a + g + X[k] + TTTTTT[i], ssssss[i]); a = rec; }; tempA += a; tempB += b; tempC += c; tempD += d; };
+																																																											 std::vector<unsigned int> padding(std::string src) { using namespace std; unsigned int num = (unsigned int)(((src.length() + 8) / 64) + 1); vector<unsigned int> rec(num * 16); strlength = num * 16; for (unsigned int i = 0; i < src.length(); i++) { rec[i >> 2] |= (int)(src[i]) << ((i % 4) * 8); }; rec[src.length() >> 2] |= (0x80 << ((src.length() % 4) * 8)); rec[rec.size() - 2] = (unsigned int)(src.length() << 3); return rec; };
+																																																											 std::string format(unsigned int num) { using namespace std; const char str16[] = "0123456789abcdef"; string res = ""; unsigned int base = 1 << 8; for (int i = 0; i < 4; i++) { string tmp = ""; unsigned int b = (num >> (i * 8)) % base & 0xff; for (int j = 0; j < 2; j++) { tmp = str16[b % 16] + tmp; b /= 16; }; res += tmp; }; return res; };
+																																																										 };
+																																																										 std::string md5(std::string& src) { MD5 md5_; return md5_(src); };
+#endif // ENABLE_MD5																																															
 																																																										 class Kstring :public Object {
 																																																										 private:
 																																																											 char* data = NULL;
@@ -452,15 +355,6 @@ namespace KUR {
 																																																											 static void Refresh() { system("cls"); };
 																																																										 };
 #endif // ENABLE_KEY
-																																																										 class Version :public Object {
-																																																										 public:
-																																																											 std::string ver;
-																																																											 Version(std::string ver_) :ver(ver_) {};
-																																																											 std::string des;
-																																																										 };
-																																																										 class Log :public Object {
-																																																										 public:
-																																																										 };
 																																																										 class KFILE {
 																																																										 private:
 																																																											 static void error(int mode) { if (mode == 1) { std::cout << "\n无法打开文件或文件路径错误!!!\n"; system("pause"); exit(1); }; };
@@ -515,21 +409,26 @@ namespace KUR {
 
 																																																										 template<class _T, class _Bind>void for_each_bind(_T _Beg, _T _End, _Bind& _bind) { while (_Beg != _End) { _bind(*_Beg); _Beg++; }; };
 
+#define __KUR_PARAMS_BINDF template<class Cl_Pn, class T, typename...Args>
 																																																										 //The parameter T is the first parameter of the function (funciton usage)
 																																																										 template<class Cl_Pn, class T, typename...Args>class Bindf :public Object {
 																																																										 public:
 																																																											 T val_;
 																																																											 Cl_Pn(*clpn)(Args...args);
-																																																											 explicit Bindf(Cl_Pn(*cl_pn)(Args...args), const T t) :val_(t) { clpn = cl_pn; };
+																																																											 explicit Bindf(Cl_Pn(*cl_pn)(Args...args), const T t = 0) :val_(t) { clpn = cl_pn; };
 																																																											 template<typename...Args_>Cl_Pn operator()(const Args_&...args) { return (*clpn)(val_, args...); };
 																																																											 template<class Ty_> Cl_Pn operator()(const Ty_ t_) { return (*clpn)(val_, t_); };
+																																																											 Cl_Pn operator()() { return (*clpn)(val_); };
 																																																										 };
+																																																										 //Only one can exist at a time
+																																																										 __KUR_PARAMS_BINDF Cl_Pn ButtonUpDetection(int CharId, KUR::Bindf<Cl_Pn, T, Args...>& _bf) { if (KEY_DOWN(CharId)) { while (KEY_DOWN(CharId)); return _bf(); }; return (Cl_Pn)0; };
+
+
 																																																										 /*template<typename T>void show(T t) { std::cout << t; };
 																																																										 template<typename T, typename...Args>void show(T t, const Args&...args) { std::cout << t; KUR::show(args...); };*/
 
 #ifdef Windows_ENABLE_KURZER
-#ifndef USE_ASCII
-																																																										 //Get process handle by process name (with suffix .exe)
+#ifndef USE_ASCII																																																										 //Get process handle by process name (with suffix .exe)
 																																																										 HANDLE GetProcessHandle(int nID) { return OpenProcess(PROCESS_ALL_ACCESS, FALSE, nID); };
 																																																										 HANDLE GetProcessHandle(LPCWSTR lpName) { HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (INVALID_HANDLE_VALUE == hSnapshot) { return NULL; }; PROCESSENTRY32 pe = { sizeof(pe) }; BOOL fOk; for (fOk = Process32First(hSnapshot, &pe); fOk; fOk = Process32Next(hSnapshot, &pe)) { if (!_tcsicmp(pe.szExeFile, lpName)) { CloseHandle(hSnapshot); return GetProcessHandle(pe.th32ProcessID); }; }; return NULL; };
 #endif // !USE_ASCII
@@ -585,7 +484,7 @@ namespace KUR {
 #ifdef USE_ASCII
 																																																											 static void SetAutoRun(const char* ch) { HKEY hKey; LPCTSTR lpRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"; long lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpRun, 0, KEY_WRITE, &hKey); if (lRet == ERROR_SUCCESS) { char pFileName[MAX_PATH] = { 0 }; DWORD dwRet = GetModuleFileName(NULL, pFileName, MAX_PATH); lRet = RegSetValueEx(hKey, ch, 0, REG_SZ, (BYTE*)pFileName, dwRet); RegCloseKey(hKey); }; };
 #endif // USE_ASCII
-																																																										 };
+																																																										 };																																		
 #endif // Windows_ENABLE_KURZER
 #ifdef ENABLE_ZIP
 #define Windows_ENABLE_KURZER
@@ -638,9 +537,18 @@ namespace KUR {
 																																																										 void RaisePCMVolume(char* buf, UINT32 size, UINT32 uRepeat, double vol) { if (!size) { return; }; for (int i = 0; i < size; i += 2) { short wData; wData = MAKEWORD(buf[i], buf[i + 1]); long dwData = wData; for (int j = 0; j < uRepeat; j++) { dwData = dwData * vol; if (dwData < -0x8000) { dwData = -0x8000; } else if (dwData > 0x7FFF) { dwData = 0x7FFF; }; }; wData = LOWORD(dwData); buf[i] = LOBYTE(wData); buf[i + 1] = HIBYTE(wData); }; };
 																																																										 void setvol(int vol) { VOLUME_START; SET_VOLUME(vol); VOLUME_END; };
 #endif // ENABLE_VOLUME																																															
+#ifdef USE_ASCII
+#include <tlhelp32.h>
+																																																										 DWORD GetProcessidFromName(LPCTSTR name) { PROCESSENTRY32 pe; DWORD id = 0; HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); pe.dwSize = sizeof(PROCESSENTRY32); if (!Process32First(hSnapshot, &pe)) { return 0; }; while (1) { pe.dwSize = sizeof(PROCESSENTRY32); if (Process32Next(hSnapshot, &pe) == FALSE) { break; }; if (strcmp(pe.szExeFile, name) == 0) { id = pe.th32ProcessID; break; }; }; CloseHandle(hSnapshot); return id; };
+																																																										 bool getProcess(const char* procressName) { char pName[MAX_PATH]; strcpy(pName, procressName); CharLowerBuff(pName, MAX_PATH); PROCESSENTRY32 currentProcess; currentProcess.dwSize = sizeof(currentProcess); HANDLE hProcess = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (hProcess == INVALID_HANDLE_VALUE) { printf("CreateToolhelp32Snapshot()调用失败!\n"); return false; }; bool bMore = Process32First(hProcess, &currentProcess); while (bMore) { CharLowerBuff(currentProcess.szExeFile, MAX_PATH); if (strcmp(currentProcess.szExeFile, pName) == 0) { CloseHandle(hProcess); return true; }; bMore = Process32Next(hProcess, &currentProcess); }; CloseHandle(hProcess); return false; };
+
+#endif // USE_ASCII
 
 };
 #define _Kstack KUR::Stack
 #define _Kstring KUR::Kstring
 #define _KR KUR::
+
+
+
 #endif
