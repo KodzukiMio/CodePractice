@@ -109,8 +109,8 @@ namespace KUR {
 	int Rand_(int beg, int end) { srand((int)(time(NULL))); return ((rand() % (end - beg + 1)) + beg); };
 	void getFiles(std::string path, std::vector<std::string>& files) { using namespace std; intptr_t   hFile = 0; struct _finddata_t fileinfo; string p; if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1) { do { if ((fileinfo.attrib & _A_SUBDIR)) { if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)getFiles(p.assign(path).append("\\").append(fileinfo.name), files); } else { files.push_back(p.assign(path).append("\\").append(fileinfo.name)); }; } while (_findnext(hFile, &fileinfo) == 0); _findclose(hFile); }; };
 	size_t GetFileSize(char* file_) { FILE* file = fopen(file_, "r"); if (file) { size_t size = filelength(fileno(file)); fclose(file); return size; } else { return 0; }; };
-	//Only one can exist at a time
-	template<typename T> T ButtonUpDetection(int charid, T(*Pfn_)()) { if (KEY_DOWN(charid)) { while (KEY_DOWN(charid)); return (*Pfn_)(); }; return 0; };
+	static short int GetBits() { return sizeof(int*) * 8; };
+	template<typename T> T ButtonUpDetection(int charid, T(*Pfn_)()) { if (KEY_DOWN(charid)) { while (KEY_DOWN(charid)); return (*Pfn_)(); }; return 0; };//Only one can exist at a time
 	std::string CODE(char* path) { std::ifstream fin(path, std::ios::binary); unsigned char  s2; fin.read((char*)&s2, sizeof(s2)); int p = s2 << 8; fin.read((char*)&s2, sizeof(s2)); p += s2; std::string code; switch (p) { case 0xfffe:code = "Unicode"; break; case 0xfeff:code = "Unicode big endian"; break; case 0xefbb:code = "UTF-8"; break; default:code = "ANSI"; }; fin.close(); return code; };
 																																																										 class Object;
 																																																										 template<class T> class Stack;
@@ -126,37 +126,10 @@ namespace KUR {
 																																																											 friend class KdataRead;
 																																																											 template<class T> friend class Kdata;
 																																																											 Object() {};
-																																																											 static short int GetBits() { return sizeof(int*) * 8; };
 																																																											 Object* this_ = this;
-																																																											 virtual Object& Eval(Object& obj) { return *this; };
-																																																											 virtual std::string ToString() { return this->ToString(); };
-																																																											 bool Equals(Object& obj) { return this->GetHashCode() == obj.GetHashCode(); };
-																																																											 size_t GetHashCode() { std::hash<int> hash_int; return hash_int._Do_hash((int)(int64_t)this); };
 																																																											 Object& ValueOf() { return *this; };
 																																																										 };
-																																																										 //template<class T>class Knode :public Object {//TODO
-																																																										 //public:
-																																																											// Knode(T& item_) :item(item_) {};
-																																																											// Knode() {};
-																																																											// Knode& operator=(Knode& kn) { this->item = kn.item; p_next = kn.p_next; return *this; };
-																																																											// T& item;
-																																																											// Knode* p_next;
-																																																										 //};
-																																																										 //template<class T>class Kiterator :public Object {//TODO
-																																																										 //public:
-																																																											// Knode<T>* pt = nullptr;
-																																																											// Kiterator() {};
-																																																											// Kiterator(Knode<T>* p) :pt(p) {};
-																																																											// T& operator*() { return pt->item; };
-																																																											// Kiterator& operator++() { pt = pt->p_next; return *this; };//++i
-																																																											// Kiterator operator++(int) { Kiterator temp = *this; pt = pt->p_next; return temp; };//i++
-																																																											// Kiterator& operator=(Kiterator& ki) { this->pt = ki.pt; return *this; };
-																																																											// bool operator==(Kiterator& ki) { return this->pt == ki.pt; };
-																																																											// bool operator!=(Kiterator& ki) { return !this->operator==(ki); };
-																																																											// Kiterator find(Kiterator& head, Kiterator& end, T& t) { Kiterator start = head; for (; start != end; ++start) { if (*start == t) { return start; }; }; return 0; };
-																																																										 //};
 #ifdef ENABLE_MD5
-
 																																																										 class MD5 {
 																																																										 private:
 																																																											 unsigned int tempA, tempB, tempC, tempD, strlength;
@@ -293,6 +266,29 @@ namespace KUR {
 																																																										 void space(Kstring& ks) { ks << " "; };
 																																																										 void endl(Kstring& ks) { ks << "\n"; };
 																																																										 template<class T>T end(Stack<T>* s) { return (*s)[(*s).length() - 1]; };
+																																																										 template<typename T>class Node {
+																																																										 public:
+																																																											 Node() {};
+																																																											 Node(const T& _data) {
+																																																												 data = _data;
+																																																											 };
+																																																											 T data;
+																																																											 Node<T>* next = NULL;
+																																																										 };
+																																																										 template<typename T>class OneLinkList :public Object {
+																																																										 public:
+																																																											 Node<T>* head = NULL;
+																																																											 size_t _size = 1;
+																																																											 OneLinkList(const T& _data) { this->head = new Node<T>(_data); };
+																																																											 OneLinkList() { this->head = new Node<T>(); };
+																																																											 Node<T>* end() { return this->get(this->_size - 1); };
+																																																											 Node<T>* get(size_t pos) { Node<T>* _pos = this->head; pos = min(pos, this->_size); for (size_t i = 0; i < pos; i++) { _pos = _pos->next; }; return _pos; };
+																																																											 OneLinkList<T>& insert(int pos, const T& _data) { Node<T>* new_node = new Node<T>(_data); Node<T>* this_node = this->get(pos); new_node->next = this_node->next; this_node->next = new_node; this->_size++; return *this; };
+																																																											 OneLinkList<T>& insert(OneLinkList<T>& oll, size_t pos) { size_t _size = oll._size; Node<T>* _thisnode = this->get(pos); Node<T>* _ollend = oll.get(_size - 1); _ollend->next = _thisnode->next; _thisnode->next = oll.head; this->_size += _size; return *this; };
+																																																											 OneLinkList<T>& insert(Node<T>* _begin, Node<T>* _end, size_t pos) { Node<T>* _pos = _begin; size_t count = 1; while (_pos != _end) { _pos = _pos->next; count++; }; Node<T>* _thisnode = this->get(pos); _end->next = _thisnode->next; _thisnode->next = _begin; this->_size += count; return *this; };
+																																																											 OneLinkList<T>& remove(size_t pos, size_t _end = -1) { std::vector<Node<T>*>vec; size_t n = _end; if (_end == -1) { _end = this->_size; } else { _end = min(_end, this->_size); }; if (pos == 0) { Node<T>* pos1 = this->head; for (size_t i = 0; i < _end; i++) { vec.push_back(pos1); pos1 = pos1->next; }; if (n != -1) { this->head = pos1->next; } else { this->head = NULL; }; for (size_t i = 0; i < vec.size(); i++) { delete vec[i]; }; this->_size -= vec.size(); return *this; }; Node<T>* _pos = this->get(pos - 1); Node<T>* __pos = _pos; for (size_t i = pos; i < _end; i++) { _pos = _pos->next; vec.push_back(_pos); }; __pos->next = _pos->next; this->_size -= vec.size(); for (size_t i = 0; i < vec.size(); i++) { delete vec[i]; }; return *this; };
+																																																											 template<typename Ty>OneLinkList<T>& for_each(Ty(*_Pfn)(KUR::Node<T>*)) { Node<T>* _pos = this->head; for (size_t i = 0; i < this->_size; i++) { (*_Pfn)(_pos); _pos = _pos->next; }; return *this; };
+																																																										 };
 																																																										 class Number :public Object {
 																																																										 public:
 																																																											 template<class T> friend class Stack;
@@ -329,7 +325,8 @@ namespace KUR {
 																																																											 static int GetProgramBits() { return sizeof(int*) * 8; };
 																																																											 static inline void w_cout(std::wstring& s) { std::locale chs("chs"); std::wcout.imbue(chs); std::wcout << s; };
 																																																											 static inline void w_cout(const wchar_t& s) { std::locale chs("chs"); std::wcout.imbue(chs); std::wcout << s; };
-																																																											 static inline std::string* encryption(const std::string key, const std::wstring& wstr) { using namespace std; const int max = 1024; const char* p = key.c_str(); const int p_len = (int)key.length(); const unsigned int MAX_ui = 4294967295; unsigned int seed = 0, seed_max = 0; for (int i = 0; i < p_len && seed_max < MAX_ui; i++) { seed = seed_max; seed_max += int(*(p + i)); }; srand(seed); wstring ws = wstr + L"   "; const wchar_t* ws_p = ws.c_str(); int ws_len = (int)(ws.length() - 2); int* ws_seed = new int[ws_len]; int* ws_int = new int[ws_len]; int* ws_res = new int[ws_len]; int* ws_res_len = new int[ws_len]; string keylen, ws_result; for (int i = 0; i < ws_len; i++) { ws_int[i] = int(ws_p[i]); ws_seed[i] = rand(); ws_res[i] = ws_int[i] + ws_seed[i]; ws_res_len[i] = (int)to_string(ws_res[i]).length(); keylen += to_string(ws_res_len[i]); ws_result += to_string(ws_res[i]); }; string key_ = "K" + keylen; string* resu = new string(ws_result + key_); delete[] ws_seed; delete[] ws_int; delete[] ws_res; delete[] ws_res_len; return resu; }; static inline std::wstring* decrypt(const std::string key, const std::string& lines) { using namespace std; const int max = 1024; const char* p = key.c_str(); const int p_len = (int)key.length(); const unsigned int MAX_ui = 4294967295; unsigned int seed = 0, seed_max = 0; for (int i = 0; i < p_len && seed_max < MAX_ui; i++) { seed = seed_max; seed_max += int(*(p + i)); }; srand(seed); const char* ch = lines.c_str(); const int lens = (int)(lines.length() - 2); KUR::Stack<char> C(lens); int lens_ = 0; for (int i = lens; i >= 0 && !(*(ch + i) == 'K'); i--) { lens_ = i - 1; *(ch + i) >> C; }; KUR::Stack<int> I(lens); char* ch_ = new char[lens_]; *ch_ = '1'; for (int i = 0; i < lens_; i++) { *(ch_ + i) = *(ch + i); }; int count = 0, Num, num; char k; char* NUM = new char[6]; int rand_ = 0; NUM[5] = '\0'; while (!C.isempty()) { k << C; Num = int(k) - 48; num = 0; for (int i = 0; i < 5; ++i) { NUM[i] = '\0'; }; for (int i = count; i < count + Num; ++i) { NUM[num] = *(ch_ + i); num++; }; count += Num; rand_ = rand(); I << (atoi(NUM) - rand_); }; KUR::Stack<wchar_t> W(lens); wchar_t W_; int w; while (!I.isempty()) { w << I; W_ = wchar_t(w); W << W_; }; wstring ws; wchar_t wt; while (!W.isempty()) { wt << W; ws += wt; }; delete[] ch_; delete[] NUM; wstring* ws_ = new wstring; *ws_ = ws; return ws_; };
+																																																											 static inline std::string* encryption(const std::string key, const std::wstring& wstr) { using namespace std; const int max = 1024; const char* p = key.c_str(); const int p_len = (int)key.length(); const unsigned int MAX_ui = 4294967295; unsigned int seed = 0, seed_max = 0; for (int i = 0; i < p_len && seed_max < MAX_ui; i++) { seed = seed_max; seed_max += int(*(p + i)); }; srand(seed); wstring ws = wstr + L"   "; const wchar_t* ws_p = ws.c_str(); int ws_len = (int)(ws.length() - 2); int* ws_seed = new int[ws_len]; int* ws_int = new int[ws_len]; int* ws_res = new int[ws_len]; int* ws_res_len = new int[ws_len]; string keylen, ws_result; for (int i = 0; i < ws_len; i++) { ws_int[i] = int(ws_p[i]); ws_seed[i] = rand(); ws_res[i] = ws_int[i] + ws_seed[i]; ws_res_len[i] = (int)to_string(ws_res[i]).length(); keylen += to_string(ws_res_len[i]); ws_result += to_string(ws_res[i]); }; string key_ = "K" + keylen; string* resu = new string(ws_result + key_); delete[] ws_seed; delete[] ws_int; delete[] ws_res; delete[] ws_res_len; return resu; };
+																																																											 static inline std::wstring* decrypt(const std::string key, const std::string& lines) { using namespace std; const int max = 1024; const char* p = key.c_str(); const int p_len = (int)key.length(); const unsigned int MAX_ui = 4294967295; unsigned int seed = 0, seed_max = 0; for (int i = 0; i < p_len && seed_max < MAX_ui; i++) { seed = seed_max; seed_max += int(*(p + i)); }; srand(seed); const char* ch = lines.c_str(); const int lens = (int)(lines.length() - 2); KUR::Stack<char> C(lens); int lens_ = 0; for (int i = lens; i >= 0 && !(*(ch + i) == 'K'); i--) { lens_ = i - 1; *(ch + i) >> C; }; KUR::Stack<int> I(lens); char* ch_ = new char[lens_]; *ch_ = '1'; for (int i = 0; i < lens_; i++) { *(ch_ + i) = *(ch + i); }; int count = 0, Num, num; char k; char* NUM = new char[6]; int rand_ = 0; NUM[5] = '\0'; while (!C.isempty()) { k << C; Num = int(k) - 48; num = 0; for (int i = 0; i < 5; ++i) { NUM[i] = '\0'; }; for (int i = count; i < count + Num; ++i) { NUM[num] = *(ch_ + i); num++; }; count += Num; rand_ = rand(); I << (atoi(NUM) - rand_); }; KUR::Stack<wchar_t> W(lens); wchar_t W_; int w; while (!I.isempty()) { w << I; W_ = wchar_t(w); W << W_; }; wstring ws; wchar_t wt; while (!W.isempty()) { wt << W; ws += wt; }; delete[] ch_; delete[] NUM; wstring* ws_ = new wstring; *ws_ = ws; return ws_; };
 																																																										 };
 																																																										 template<class T = Kstring> class Kdata :public Object {
 																																																										 private:
@@ -361,11 +358,10 @@ namespace KUR {
 																																																										 public:
 																																																											 static inline void FileCpoy(std::string from, std::string to) { using namespace std; fstream file; file.open(from.c_str(), ios::binary | ios::in | ios::ate); int length = (int)file.tellg(); char* Data = new char[length + 1]; file.seekg(0); file.read(Data, length); fstream file2; file2.open(to.c_str(), ios::binary | ios::out); file2.write(Data, length); };
 																																																											 static inline KUR::Stack<KUR::Kstring>* FileReadAsStack(const std::string res, int mode = 0) { using namespace std; const int max = 1024; char line[max]; FILE* fp1 = fopen(res.c_str(), "r"); if (fp1 == nullptr) { error(mode); if (mode == 0) { return  new KUR::Stack<KUR::Kstring>(); }; }; fseek(fp1, 0, 2); long readbuffer_ = ftell(fp1); rewind(fp1); int readbuffer = readbuffer_ / max + 1; KUR::Stack<KUR::Kstring>* S = new KUR::Stack<KUR::Kstring>(readbuffer); while (fgets(line, max, fp1) != NULL) { *S << line; }; return S; };
-																																																											 //mode
 																																																											 static inline std::string FileReadAsString(const std::string res, int mode = 0) { KUR::Stack<KUR::Kstring>* K = FileReadAsStack(res, mode); std::string ress = KUR::Stack<std::string>::AsString(*K); delete K; return ress; };
 																																																										 };
-																																																										 //The memory recovery is defective!!!
-																																																										 class KdataRead :public Object {
+																																																										 
+																																																										 class KdataRead :public Object {//The memory recovery is defective!!!
 																																																										 private:
 																																																											 KUR::Kstring err;
 																																																											 int klen;
@@ -396,10 +392,8 @@ namespace KUR {
 																																																											 KUR::Kstring StackIntAsString(Stack<int>& S) { int len = S.length(); int res; KUR::Kstring ks_ = "["; KUR::Kstring ks = ""; for (int i = 0; i < len; i++) { res << S; ks = ks + "{" + std::to_string(res).c_str() + "}"; }; return (ks_ + ks + "]"); };
 																																																											 void Save() { std::fstream F_(address.str(), std::ios::out); for (int i = 0; i < this_len; i++) { F_ << "@$%" << (*this)[i].name << StackIntAsString(*(*this)[i].sub).str() << "\"" << *KUR::KMiscellaneous::encryption(keys.str(), KUR::ToWstring_((*this)[i].Source.str())) << "\"\"$@,\n"; }; F_.close(); };
 																																																										 };
-																																																										 KUR::Kdata<KUR::Kstring>& end(KUR::KdataRead* kr) { using namespace KUR; return kr->Check(kr->GetLen()); };
-
-																																																										 //The parameter T is the first parameter of the function (class usage)
-																																																										 template<class Cl_Pn, class T>class Bind2c :public Object {
+																																																										 KUR::Kdata<KUR::Kstring>& end(KUR::KdataRead* kr) { using namespace KUR; return kr->Check(kr->GetLen()); };																																																										 
+																																																										 template<class Cl_Pn, class T>class Bind2c :public Object {//The parameter T is the first parameter of the function (class usage)
 																																																										 public:
 																																																											 T val_;
 																																																											 Cl_Pn* clp_;
@@ -408,10 +402,8 @@ namespace KUR {
 																																																										 };
 
 																																																										 template<class _T, class _Bind>void for_each_bind(_T _Beg, _T _End, _Bind& _bind) { while (_Beg != _End) { _bind(*_Beg); _Beg++; }; };
-
-#define __KUR_PARAMS_BINDF template<class Cl_Pn, class T, typename...Args>
-																																																										 //The parameter T is the first parameter of the function (funciton usage)
-																																																										 template<class Cl_Pn, class T, typename...Args>class Bindf :public Object {
+#define __KUR_PARAMS_BINDF template<class Cl_Pn, class T, typename...Args>																																																										 
+																																																										 template<class Cl_Pn, class T, typename...Args>class Bindf :public Object {//The parameter T is the first parameter of the function (funciton usage)
 																																																										 public:
 																																																											 T val_;
 																																																											 Cl_Pn(*clpn)(Args...args);
@@ -419,23 +411,13 @@ namespace KUR {
 																																																											 template<typename...Args_>Cl_Pn operator()(const Args_&...args) { return (*clpn)(val_, args...); };
 																																																											 template<class Ty_> Cl_Pn operator()(const Ty_ t_) { return (*clpn)(val_, t_); };
 																																																											 Cl_Pn operator()() { return (*clpn)(val_); };
-																																																										 };
-																																																										 //Only one can exist at a time
-																																																										 __KUR_PARAMS_BINDF Cl_Pn ButtonUpDetection(int CharId, KUR::Bindf<Cl_Pn, T, Args...>& _bf) { if (KEY_DOWN(CharId)) { while (KEY_DOWN(CharId)); return _bf(); }; return (Cl_Pn)0; };
-
-
-																																																										 /*template<typename T>void show(T t) { std::cout << t; };
-																																																										 template<typename T, typename...Args>void show(T t, const Args&...args) { std::cout << t; KUR::show(args...); };*/
-
+																																																										 };																																																										 
+																																																										 __KUR_PARAMS_BINDF Cl_Pn ButtonUpDetection(int CharId, KUR::Bindf<Cl_Pn, T, Args...>& _bf) { if (KEY_DOWN(CharId)) { while (KEY_DOWN(CharId)); return _bf(); }; return (Cl_Pn)0; };//Only one can exist at a time
 #ifdef Windows_ENABLE_KURZER
-#ifndef USE_ASCII																																																										 //Get process handle by process name (with suffix .exe)
-																																																										 HANDLE GetProcessHandle(int nID) { return OpenProcess(PROCESS_ALL_ACCESS, FALSE, nID); };
+#ifndef USE_ASCII																																																										 
+																																																										 HANDLE GetProcessHandle(int nID) { return OpenProcess(PROCESS_ALL_ACCESS, FALSE, nID); };//Get process handle by process name (with suffix .exe)
 																																																										 HANDLE GetProcessHandle(LPCWSTR lpName) { HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (INVALID_HANDLE_VALUE == hSnapshot) { return NULL; }; PROCESSENTRY32 pe = { sizeof(pe) }; BOOL fOk; for (fOk = Process32First(hSnapshot, &pe); fOk; fOk = Process32Next(hSnapshot, &pe)) { if (!_tcsicmp(pe.szExeFile, lpName)) { CloseHandle(hSnapshot); return GetProcessHandle(pe.th32ProcessID); }; }; return NULL; };
 #endif // !USE_ASCII
-
-
-
-
 																																																										 namespace ConsoleColor {
 																																																											 class Color {
 																																																											 public:
@@ -484,7 +466,7 @@ namespace KUR {
 #ifdef USE_ASCII
 																																																											 static void SetAutoRun(const char* ch) { HKEY hKey; LPCTSTR lpRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"; long lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpRun, 0, KEY_WRITE, &hKey); if (lRet == ERROR_SUCCESS) { char pFileName[MAX_PATH] = { 0 }; DWORD dwRet = GetModuleFileName(NULL, pFileName, MAX_PATH); lRet = RegSetValueEx(hKey, ch, 0, REG_SZ, (BYTE*)pFileName, dwRet); RegCloseKey(hKey); }; };
 #endif // USE_ASCII
-																																																										 };																																		
+																																																										 };
 #endif // Windows_ENABLE_KURZER
 #ifdef ENABLE_ZIP
 #define Windows_ENABLE_KURZER
@@ -543,12 +525,8 @@ namespace KUR {
 																																																										 bool getProcess(const char* procressName) { char pName[MAX_PATH]; strcpy(pName, procressName); CharLowerBuff(pName, MAX_PATH); PROCESSENTRY32 currentProcess; currentProcess.dwSize = sizeof(currentProcess); HANDLE hProcess = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (hProcess == INVALID_HANDLE_VALUE) { printf("CreateToolhelp32Snapshot()调用失败!\n"); return false; }; bool bMore = Process32First(hProcess, &currentProcess); while (bMore) { CharLowerBuff(currentProcess.szExeFile, MAX_PATH); if (strcmp(currentProcess.szExeFile, pName) == 0) { CloseHandle(hProcess); return true; }; bMore = Process32Next(hProcess, &currentProcess); }; CloseHandle(hProcess); return false; };
 
 #endif // USE_ASCII
-
 };
 #define _Kstack KUR::Stack
 #define _Kstring KUR::Kstring
 #define _KR KUR::
-
-
-
 #endif
