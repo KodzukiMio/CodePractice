@@ -36,7 +36,7 @@
 #include<Windows.h>
 #include <tchar.h>
 #include <functional>
-#include <io.h>
+#include<strsafe.h>
 #ifdef ENABLE_ZIP
 #define Windows_ENABLE_KURZER
 //Please add zip.cpp, unzip.cpp to the project directory
@@ -60,10 +60,20 @@
 #ifdef ENABLE_COLOR
 #define Windows_ENABLE_KURZER
 #endif
-#ifdef Windows_ENABLE_KURZER
-#include<Windows.h>
-#include<TlHelp32.h>
-#endif
+#ifdef Windows_SOCK_ENABLE_KURZER
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <Windows.h>
+#include <TlHelp32.h>
+#define __KW_cw_malloc(GetLengthOfTarget,nptrType) (nptrType*)malloc(MultiByteToWideChar(0, 0, GetLengthOfTarget, -1, NULL, 0) * sizeof(nptrType))
+#define __KW_cw(__char,__wchar) MultiByteToWideChar(0, 0,__char, -1, __wchar, MultiByteToWideChar(0, 0, __char, -1, NULL, 0))
+#ifdef Windows_SOCK_ENABLE_KURZER
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
+#pragma comment (lib, "ws2_32.lib")
+//请链接ws2_32.lib
+#endif // Windows_SOCK_ENABLE_KURZER
+
+#endif //Windows_SOCK_ENABLE_KURZER
 
 #ifdef _BITSET_
 #include<Bitset>
@@ -77,6 +87,7 @@
 #pragma warning (disable : 26451)
 #pragma warning (disable : 6387)
 #pragma warning (disable : 4244)
+
 #define sptr_(name,type,_Pfn)shared_ptr<type>name(_Pfn)
 #define sptrn(name,type,value)sptr_(name,type,new type(value))
 #define _ptrtype(_Pfn)(typeid(*_Pfn).name())
@@ -85,20 +96,22 @@
 #define CLICK(time) mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);Sleep(time);mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 #define MOUSESET(x,y) MouseMove(x,y)
 #define MOUSEOFFSET(_x,_y) 	{POINT __MOUSE_POINT_POSITION;::GetCursorPos(&__MOUSE_POINT_POSITION);MOUSESET(__MOUSE_POINT_POSITION.x+_x,__MOUSE_POINT_POSITION.y+_y);}
+#define __DEBUGEXIT if (IsDebuggerPresent()) { return 0; }
+
 typedef unsigned short int KCDSTR;
 namespace KUR {
 	const double pi = 3.14159265358979;
 	const double e = 2.718281828459045;
 	const double eps = 1e-10;
 	void MouseMove(int x, int y) { double fScreenWidth = ::GetSystemMetrics(SM_CXSCREEN) - 1; double fScreenHeight = ::GetSystemMetrics(SM_CYSCREEN) - 1; double fx = x * (65535.0f / fScreenWidth); double fy = y * (65535.0f / fScreenHeight); mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE, fx, fy, 0, 0); };
-	tm TIME() { time_t now = time(0); tm* gmtm = gmtime(&now); return *gmtm; };
-	wchar_t* ToWchar_N(const char* c) { size_t cSize = strlen(c) + 1; wchar_t* wc = new wchar_t[cSize]; mbstowcs(wc, c, cSize); return wc; };
+	tm* TIME() { time_t now = time(0); tm* _tm = new tm; errno_t gmtm = gmtime_s(_tm, &now); return _tm; };
+	wchar_t* ToWchar_N(const char* c) { size_t cSize = strlen(c) + 1; wchar_t* wc = new wchar_t[cSize]; mbstowcs(wc, c, cSize); return wc; };//unsafe
 	bool Divisible(unsigned long long _Val, unsigned long long _Num) { double a = (double)_Val / (double)_Num; if (a - (double)(unsigned long long)a < 1e-6) { return true; }; return false; };
 	bool IsPrimeNumber(unsigned long long num) { if (num == 1 || num == 4) { return 0; }; if (num == 2 || num == 3) { return 1; }; if (num % 6 != 1 && num % 6 != 5) { return 0; }; unsigned long long tmp = (unsigned long long)sqrt(num); for (unsigned long long i = 5; i <= tmp; i += 6) { if (num % i == 0 || num % (i + 2) == 0) { return 0; }; }; return 1; };
 	std::string* FastRead_N(const char* objpath) { std::ifstream fins(objpath, std::ios::binary); char c; fins >> c; if (fins.eof()) { fins.close(); return new std::string; }; fins.close(); std::ifstream fin(objpath, std::ios::binary); std::vector<char>* buf = new std::vector<char>(fin.seekg(0, std::ios::end).tellg()); fin.seekg(0, std::ios::beg).read(&(*buf)[0], static_cast<std::streamsize>(buf->size())); fin.close(); std::string* str = new std::string(); (*str).assign(buf->begin(), buf->end()); delete buf; return str; };
 	template<class Ry_ = void, class Ty_> void for_each(Ty_* First_, Ty_* Last_, Ry_(*_Pfn)(Ty_ Val_)) { while (First_ != Last_) { (*_Pfn)(*First_++); }; };
 	std::string Subreplace(std::string resource_str, std::string sub_str, std::string new_str) { std::string dst_str = resource_str; std::string::size_type pos = 0; while ((pos = dst_str.find(sub_str)) != std::string::npos) { dst_str.replace(pos, sub_str.length(), new_str); }; return dst_str; };
-	std::vector<std::string> split(const std::string& str, const std::string& delim) { std::vector<std::string> res; if ("" == str) return res; char* strs = new char[str.length() + 1]; strcpy(strs, str.c_str()); char* d = new char[delim.length() + 1]; strcpy(d, delim.c_str()); char* p = strtok(strs, d); while (p) { std::string s = p; res.push_back(s); p = strtok(NULL, d); }; delete[] d; delete p; return res; };
+	std::vector<std::string> split(const std::string& str, const std::string& delim) { std::vector<std::string> res; if ("" == str) return res; char* strs = new char[str.length() + 1]; strcpy(strs, str.c_str()); char* d = new char[delim.length() + 1]; strcpy(d, delim.c_str()); char* p = strtok(strs, d); while (p) { std::string s = p; res.push_back(s); p = strtok(NULL, d); }; delete[] d; delete p; return res; };//unsafe
 	TCHAR* WstrToTchar(std::wstring& ws) { return (TCHAR*)(&ws[0]); };
 	std::string FileName(const char* path) { std::string P = path; auto v = split(P, "\\"); P = v[v.size() - 1]; return P; };
 	inline std::wstring ToWstring_(const std::string& input) { std::wstring_convert<std::codecvt_utf8<wchar_t>> converter; return converter.from_bytes(input); };
@@ -110,7 +123,8 @@ namespace KUR {
 	void getFiles(std::string path, std::vector<std::string>& files) { using namespace std; intptr_t   hFile = 0; struct _finddata_t fileinfo; string p; if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1) { do { if ((fileinfo.attrib & _A_SUBDIR)) { if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)getFiles(p.assign(path).append("\\").append(fileinfo.name), files); } else { files.push_back(p.assign(path).append("\\").append(fileinfo.name)); }; } while (_findnext(hFile, &fileinfo) == 0); _findclose(hFile); }; };
 	size_t GetFileSize(char* file_) { FILE* file = fopen(file_, "r"); if (file) { size_t size = filelength(fileno(file)); fclose(file); return size; } else { return 0; }; };
 	static short int GetBits() { return sizeof(int*) * 8; };
-	template<typename T> T ButtonUpDetection(int charid, T(*Pfn_)()) { if (KEY_DOWN(charid)) { while (KEY_DOWN(charid)); return (*Pfn_)(); }; return 0; };//Only one can exist at a time
+	std::string getCmdResult(const std::string& strCmd) { using namespace std; char buf[10240] = { 0 }; FILE* pf = NULL; if ((pf = _popen(strCmd.c_str(), "r")) == NULL) { return ""; }; string strResult; while (fgets(buf, sizeof buf, pf)) { strResult += buf; }; _pclose(pf); unsigned int iSize = (unsigned int)strResult.size(); if (iSize > 0 && strResult[iSize - 1] == '\n') { strResult = strResult.substr(0, iSize - 1); }; return strResult; };
+	template<typename T> T ButtonUpDetection(int charid, T(*Pfn_)(), int sleeptime = 1) { if (KEY_DOWN(charid)) { while (KEY_DOWN(charid)); Sleep(sleeptime); return (*Pfn_)(); }; return 0; };//Only one can exist at a time
 	std::string CODE(char* path) { std::ifstream fin(path, std::ios::binary); unsigned char  s2; fin.read((char*)&s2, sizeof(s2)); int p = s2 << 8; fin.read((char*)&s2, sizeof(s2)); p += s2; std::string code; switch (p) { case 0xfffe:code = "Unicode"; break; case 0xfeff:code = "Unicode big endian"; break; case 0xefbb:code = "UTF-8"; break; default:code = "ANSI"; }; fin.close(); return code; };
 																																																										 class Object;
 																																																										 template<class T> class Stack;
@@ -151,7 +165,7 @@ namespace KUR {
 																																																										 };
 																																																										 std::string md5(std::string& src) { MD5 md5_; return md5_(src); };
 #endif // ENABLE_MD5																																															
-																																																										 class Kstring :public Object {
+																																																										 class Kstring :public Object {//unsafe
 																																																										 private:
 																																																											 char* data = NULL;
 																																																											 size_t len = 0;
@@ -354,13 +368,13 @@ namespace KUR {
 #endif // ENABLE_KEY
 																																																										 class KFILE {
 																																																										 private:
-																																																											 static void error(int mode) { if (mode == 1) { std::cout << "\n无法打开文件或文件路径错误!!!\n"; system("pause"); exit(1); }; };
+																																																											 static void error(int mode) { if (mode == 1) { std::cout << "\nCould not open file or wrong file path!!!\n"; system("pause"); exit(1); }; };
 																																																										 public:
 																																																											 static inline void FileCpoy(std::string from, std::string to) { using namespace std; fstream file; file.open(from.c_str(), ios::binary | ios::in | ios::ate); int length = (int)file.tellg(); char* Data = new char[length + 1]; file.seekg(0); file.read(Data, length); fstream file2; file2.open(to.c_str(), ios::binary | ios::out); file2.write(Data, length); };
-																																																											 static inline KUR::Stack<KUR::Kstring>* FileReadAsStack(const std::string res, int mode = 0) { using namespace std; const int max = 1024; char line[max]; FILE* fp1 = fopen(res.c_str(), "r"); if (fp1 == nullptr) { error(mode); if (mode == 0) { return  new KUR::Stack<KUR::Kstring>(); }; }; fseek(fp1, 0, 2); long readbuffer_ = ftell(fp1); rewind(fp1); int readbuffer = readbuffer_ / max + 1; KUR::Stack<KUR::Kstring>* S = new KUR::Stack<KUR::Kstring>(readbuffer); while (fgets(line, max, fp1) != NULL) { *S << line; }; return S; };
+																																																											 static inline KUR::Stack<KUR::Kstring>* FileReadAsStack(const std::string res, int mode = 0) { using namespace std; const int max = 1024; char line[max]; FILE* fp1 = fopen(res.c_str(), "r"); if (fp1 == nullptr) { error(mode); if (mode == 0) { return  new KUR::Stack<KUR::Kstring>(); }; }; fseek(fp1, 0, 2); long readbuffer_ = ftell(fp1); rewind(fp1); int readbuffer = readbuffer_ / max + 1; KUR::Stack<KUR::Kstring>* S = new KUR::Stack<KUR::Kstring>(readbuffer); while (fgets(line, max, fp1) != NULL) { *S << line; }; return S; };//unsafe
 																																																											 static inline std::string FileReadAsString(const std::string res, int mode = 0) { KUR::Stack<KUR::Kstring>* K = FileReadAsStack(res, mode); std::string ress = KUR::Stack<std::string>::AsString(*K); delete K; return ress; };
 																																																										 };
-																																																										 
+
 																																																										 class KdataRead :public Object {//The memory recovery is defective!!!
 																																																										 private:
 																																																											 KUR::Kstring err;
@@ -392,7 +406,7 @@ namespace KUR {
 																																																											 KUR::Kstring StackIntAsString(Stack<int>& S) { int len = S.length(); int res; KUR::Kstring ks_ = "["; KUR::Kstring ks = ""; for (int i = 0; i < len; i++) { res << S; ks = ks + "{" + std::to_string(res).c_str() + "}"; }; return (ks_ + ks + "]"); };
 																																																											 void Save() { std::fstream F_(address.str(), std::ios::out); for (int i = 0; i < this_len; i++) { F_ << "@$%" << (*this)[i].name << StackIntAsString(*(*this)[i].sub).str() << "\"" << *KUR::KMiscellaneous::encryption(keys.str(), KUR::ToWstring_((*this)[i].Source.str())) << "\"\"$@,\n"; }; F_.close(); };
 																																																										 };
-																																																										 KUR::Kdata<KUR::Kstring>& end(KUR::KdataRead* kr) { using namespace KUR; return kr->Check(kr->GetLen()); };																																																										 
+																																																										 KUR::Kdata<KUR::Kstring>& end(KUR::KdataRead* kr) { using namespace KUR; return kr->Check(kr->GetLen()); };
 																																																										 template<class Cl_Pn, class T>class Bind2c :public Object {//The parameter T is the first parameter of the function (class usage)
 																																																										 public:
 																																																											 T val_;
@@ -411,7 +425,7 @@ namespace KUR {
 																																																											 template<typename...Args_>Cl_Pn operator()(const Args_&...args) { return (*clpn)(val_, args...); };
 																																																											 template<class Ty_> Cl_Pn operator()(const Ty_ t_) { return (*clpn)(val_, t_); };
 																																																											 Cl_Pn operator()() { return (*clpn)(val_); };
-																																																										 };																																																										 
+																																																										 };
 																																																										 __KUR_PARAMS_BINDF Cl_Pn ButtonUpDetection(int CharId, KUR::Bindf<Cl_Pn, T, Args...>& _bf) { if (KEY_DOWN(CharId)) { while (KEY_DOWN(CharId)); return _bf(); }; return (Cl_Pn)0; };//Only one can exist at a time
 #ifdef Windows_ENABLE_KURZER
 #ifndef USE_ASCII																																																										 
@@ -456,7 +470,7 @@ namespace KUR {
 #ifdef USE_ASCII
 																																																											 void set_title(const char* ch) { SetConsoleTitle(LPCSTR(ch)); };
 #else
-																																																											 void set_title(const char* ch) { wchar_t* wch = ToWchar_N(ch); SetConsoleTitle(LPCWSTR(wch)); delete wch; };
+																																																											 void set_title(const wchar_t* ch) { SetConsoleTitle(LPCWSTR(ch)); };
 #endif
 #define K_COLOR using namespace KUR::ConsoleColor;KUR::ConsoleColor::rgb_init();KUR::ConsoleColor::Colors K_color;
 																																																										 };
@@ -522,9 +536,44 @@ namespace KUR {
 #ifdef USE_ASCII
 #include <tlhelp32.h>
 																																																										 DWORD GetProcessidFromName(LPCTSTR name) { PROCESSENTRY32 pe; DWORD id = 0; HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); pe.dwSize = sizeof(PROCESSENTRY32); if (!Process32First(hSnapshot, &pe)) { return 0; }; while (1) { pe.dwSize = sizeof(PROCESSENTRY32); if (Process32Next(hSnapshot, &pe) == FALSE) { break; }; if (strcmp(pe.szExeFile, name) == 0) { id = pe.th32ProcessID; break; }; }; CloseHandle(hSnapshot); return id; };
-																																																										 bool getProcess(const char* procressName) { char pName[MAX_PATH]; strcpy(pName, procressName); CharLowerBuff(pName, MAX_PATH); PROCESSENTRY32 currentProcess; currentProcess.dwSize = sizeof(currentProcess); HANDLE hProcess = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (hProcess == INVALID_HANDLE_VALUE) { printf("CreateToolhelp32Snapshot()调用失败!\n"); return false; }; bool bMore = Process32First(hProcess, &currentProcess); while (bMore) { CharLowerBuff(currentProcess.szExeFile, MAX_PATH); if (strcmp(currentProcess.szExeFile, pName) == 0) { CloseHandle(hProcess); return true; }; bMore = Process32Next(hProcess, &currentProcess); }; CloseHandle(hProcess); return false; };
+																																																										 bool getProcess(const char* procressName) { char pName[MAX_PATH]; strcpy(pName, procressName); CharLowerBuff(pName, MAX_PATH); PROCESSENTRY32 currentProcess; currentProcess.dwSize = sizeof(currentProcess); HANDLE hProcess = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (hProcess == INVALID_HANDLE_VALUE) { printf("CreateToolhelp32Snapshot() failed!!\n"); return false; }; bool bMore = Process32First(hProcess, &currentProcess); while (bMore) { CharLowerBuff(currentProcess.szExeFile, MAX_PATH); if (strcmp(currentProcess.szExeFile, pName) == 0) { CloseHandle(hProcess); return true; }; bMore = Process32Next(hProcess, &currentProcess); }; CloseHandle(hProcess); return false; };
 
 #endif // USE_ASCII
+#ifdef Windows_SOCK_ENABLE_KURZER
+																																																										 class TCP_INTERFACE {
+																																																										 public:
+																																																											 TCP_INTERFACE() { WSADATA wsaData; if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) { std::cout << ("\nWSAStartup failed!"); }; };
+																																																											 ~TCP_INTERFACE() { WSACleanup(); };
+																																																										 };
+																																																										 class TCP_SOCKET_SERVER : public TCP_INTERFACE {
+																																																										 private:
+																																																											 SOCKET servSock = 0;
+																																																											 sockaddr_in sockAddr;
+																																																										 public:
+																																																											 TCP_SOCKET_SERVER() { memset(&sockAddr, 0, sizeof(sockAddr)); };
+																																																											 ~TCP_SOCKET_SERVER() { if (servSock != 0)closesocket(servSock); };
+																																																											 TCP_SOCKET_SERVER Bind(int port) { servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); sockAddr.sin_family = PF_INET; sockAddr.sin_addr.s_addr = htonl(INADDR_ANY); sockAddr.sin_port = htons(port); if (::bind(servSock, (SOCKADDR*)&sockAddr, sizeof(SOCKADDR)) != 0) { error_die("bind"); }; return *this; };
+																																																											 TCP_SOCKET_SERVER Listen() { if (servSock == 0)error_die("listen"); if (listen(servSock, SOMAXCONN) != 0) { error_die("listen"); }; return *this; };
+																																																											 SOCKET Accept() { SOCKADDR t; int nSize = sizeof(SOCKADDR); SOCKET clnt = accept(servSock, &t, &nSize); if (clnt <= 0)error_die("accept"); return clnt; };
+																																																											 int Send(SOCKET clnt, const void* buf, const int buflen) { return send(clnt, (const char*)buf, buflen, 0); };
+																																																											 int Recv(SOCKET clnt, void* buf, const int buflen) { return recv(clnt, (char*)buf, buflen, 0); };
+																																																											 void Close(SOCKET clnt) { if (closesocket(clnt) != 0) { error_die("closesocket"); }; };
+																																																											 void error_die(const char* str) { printf("[hint]%s failed:%d", str, WSAGetLastError()); };
+																																																										 };
+																																																										 class TCP_SOCKET_CLIENT : public TCP_INTERFACE {
+																																																										 private:
+																																																											 SOCKET clntSock = 0;
+																																																											 sockaddr_in sockAddr;
+																																																										 public:
+																																																											 ~TCP_SOCKET_CLIENT() { if (clntSock != 0)closesocket(clntSock); };
+																																																											 SOCKET Connect(const char* IPAdrr, _In_ u_short port) { memset(&sockAddr, 0, sizeof sockAddr); clntSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); sockAddr.sin_family = PF_INET; sockAddr.sin_addr.s_addr = inet_addr(IPAdrr); sockAddr.sin_port = htons(port); if (connect(clntSock, (SOCKADDR*)&sockAddr, sizeof(sockAddr)) != 0) { error_die("connect"); }; return clntSock; };
+																																																											 void Gethostbyname(const char* URL) { hostent* host = gethostbyname(URL); if (!host) { std::cout << "Get IP address error!\n"; return; }; std::cout << URL << std::endl; for (int i = 0; host->h_aliases[i]; i++) { printf("Aliases %d: %s\n", i + 1, host->h_aliases[i]); }; printf("Address type: %s\n", (host->h_addrtype == AF_INET) ? "AF_INET" : "AF_INET6"); for (int i = 0; host->h_addr_list[i]; i++) { printf("IP addr %d: %s\n", i + 1, inet_ntoa(*(struct in_addr*)host->h_addr_list[i])); } };
+																																																											 int Send(_In_ SOCKET clnt, const void* buf, const int bufSize) { return send(clnt, (const char*)buf, bufSize, 0); };
+																																																											 int Recv(_In_ SOCKET clnt, void* buf, const int bufSize) { return recv(clnt, (char*)buf, bufSize, 0); };
+																																																											 void Close(_In_ SOCKET clnt) { if (closesocket(clnt) != 0)error_die("close"); clntSock = 0; };
+																																																											 void error_die(const char* str) { printf("[hint]%s failed:%d", str, WSAGetLastError()); };
+																																																										 };
+#endif
 };
 #define _Kstack KUR::Stack
 #define _Kstring KUR::Kstring
