@@ -6,7 +6,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
-
 #ifdef ENABLE_SZN_OPE
 #include <gl/glut.h>
 #pragma comment(lib,"msvcrt.lib")
@@ -15,6 +14,12 @@
 #include<glad.h>
 #include<glfw3.h>
 #endif // ENABLE_SZN_OPE
+#ifdef __KURBOOST
+//请添加boost库!!!
+#define _WIN32_WINNT 0x0601
+#include<boost/algorithm/string.hpp>
+
+#endif // __KURBOOST
 
 #include <iostream>
 #include <fstream>
@@ -37,6 +42,8 @@
 #include <tchar.h>
 #include <functional>
 #include<strsafe.h>
+#include<tuple>
+#include<type_traits>
 #ifdef ENABLE_ZIP
 #define Windows_ENABLE_KURZER
 //Please add zip.cpp, unzip.cpp to the project directory
@@ -61,6 +68,7 @@
 #define Windows_ENABLE_KURZER
 #endif
 #ifdef Windows_SOCK_ENABLE_KURZER
+#define Windows_ENABLE_KURZER
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -109,7 +117,7 @@ namespace KUR {
 	bool Divisible(unsigned long long _Val, unsigned long long _Num) { double a = (double)_Val / (double)_Num; if (a - (double)(unsigned long long)a < 1e-6) { return true; }; return false; };
 	bool IsPrimeNumber(unsigned long long num) { if (num == 1 || num == 4) { return 0; }; if (num == 2 || num == 3) { return 1; }; if (num % 6 != 1 && num % 6 != 5) { return 0; }; unsigned long long tmp = (unsigned long long)sqrt(num); for (unsigned long long i = 5; i <= tmp; i += 6) { if (num % i == 0 || num % (i + 2) == 0) { return 0; }; }; return 1; };
 	std::string* FastRead_N(const char* objpath) { std::ifstream fins(objpath, std::ios::binary); char c; fins >> c; if (fins.eof()) { fins.close(); return new std::string; }; fins.close(); std::ifstream fin(objpath, std::ios::binary); std::vector<char>* buf = new std::vector<char>(fin.seekg(0, std::ios::end).tellg()); fin.seekg(0, std::ios::beg).read(&(*buf)[0], static_cast<std::streamsize>(buf->size())); fin.close(); std::string* str = new std::string(); (*str).assign(buf->begin(), buf->end()); delete buf; return str; };
-	template<class Ry_ = void, class Ty_> void for_each(Ty_* First_, Ty_* Last_, Ry_(*_Pfn)(Ty_ Val_)) { while (First_ != Last_) { (*_Pfn)(*First_++); }; };
+	template<class Ry_ = void, class Ty_> void for_each(Ty_* First_, Ty_* Last_, Ry_(*_Pfn)(Ty_)) { while (First_ != Last_) { (*_Pfn)(*First_++); }; };
 	std::string Subreplace(std::string resource_str, std::string sub_str, std::string new_str) { std::string dst_str = resource_str; std::string::size_type pos = 0; while ((pos = dst_str.find(sub_str)) != std::string::npos) { dst_str.replace(pos, sub_str.length(), new_str); }; return dst_str; };
 	std::vector<std::string> split(const std::string& str, const std::string& delim) { std::vector<std::string> res; if ("" == str) return res; char* strs = new char[str.length() + 1]; strcpy(strs, str.c_str()); char* d = new char[delim.length() + 1]; strcpy(d, delim.c_str()); char* p = strtok(strs, d); while (p) { std::string s = p; res.push_back(s); p = strtok(NULL, d); }; delete[] d; delete p; return res; };//unsafe
 	TCHAR* WstrToTchar(std::wstring& ws) { return (TCHAR*)(&ws[0]); };
@@ -120,25 +128,33 @@ namespace KUR {
 	std::string GetStringByWchar(const WCHAR* wszString) { std::string strString; if (wszString != NULL) { std::wstring ws(wszString); strString.assign(ws.begin(), ws.end()); }; return strString; };
 	std::wstring GetWStringByChar(const char* szString) { std::wstring wstrString; if (szString != NULL) { std::string str(szString); wstrString.assign(str.begin(), str.end()); }; return wstrString; };
 	int Rand_(int beg, int end) { srand((int)(time(NULL))); return ((rand() % (end - beg + 1)) + beg); };
+	size_t FindAllCount(std::string str, std::string sub) { size_t count = 0; size_t index = 0; size_t len = str.length(); while ((index = str.find(sub, index)) < len) { count++; index++; }; return count; };
 	void getFiles(std::string path, std::vector<std::string>& files) { using namespace std; intptr_t   hFile = 0; struct _finddata_t fileinfo; string p; if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1) { do { if ((fileinfo.attrib & _A_SUBDIR)) { if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)getFiles(p.assign(path).append("\\").append(fileinfo.name), files); } else { files.push_back(p.assign(path).append("\\").append(fileinfo.name)); }; } while (_findnext(hFile, &fileinfo) == 0); _findclose(hFile); }; };
+	template<typename T1, typename T2, typename RT = std::decay_t<decltype((true ? T1() : T2()))>>RT Max(T1 a, T2 b) { return a > b ? a : b; };
+	template<typename RT, typename T1, typename T2>RT Max(T1 a, T2 b) { return (RT)(a > b ? a : b); };
+	template<typename T1, typename T2>constexpr auto _Max(T1 a, T2 b) { return a > b ? a : b; };
 	size_t GetFileSize(char* file_) { FILE* file = fopen(file_, "r"); if (file) { size_t size = filelength(fileno(file)); fclose(file); return size; } else { return 0; }; };
 	static short int GetBits() { return sizeof(int*) * 8; };
+	template<typename T>void PrintAll(const std::vector<T>& vec, const std::string&& _firdisplay = "") { for_each(vec.begin(), vec.end(), [&, _firdisplay](const T& t) {std::cout << _firdisplay << t << std::endl; }); };
 	std::string getCmdResult(const std::string& strCmd) { using namespace std; char buf[10240] = { 0 }; FILE* pf = NULL; if ((pf = _popen(strCmd.c_str(), "r")) == NULL) { return ""; }; string strResult; while (fgets(buf, sizeof buf, pf)) { strResult += buf; }; _pclose(pf); unsigned int iSize = (unsigned int)strResult.size(); if (iSize > 0 && strResult[iSize - 1] == '\n') { strResult = strResult.substr(0, iSize - 1); }; return strResult; };
 	template<typename T> T ButtonUpDetection(int charid, T(*Pfn_)(), int sleeptime = 1) { if (KEY_DOWN(charid)) { while (KEY_DOWN(charid)); Sleep(sleeptime); return (*Pfn_)(); }; return 0; };//Only one can exist at a time
 	std::string CODE(char* path) { std::ifstream fin(path, std::ios::binary); unsigned char  s2; fin.read((char*)&s2, sizeof(s2)); int p = s2 << 8; fin.read((char*)&s2, sizeof(s2)); p += s2; std::string code; switch (p) { case 0xfffe:code = "Unicode"; break; case 0xfeff:code = "Unicode big endian"; break; case 0xefbb:code = "UTF-8"; break; default:code = "ANSI"; }; fin.close(); return code; };
 																																																										 class Object;
 																																																										 template<class T> class Stack;
-																																																										 class Number;
 																																																										 class Kstring;
-																																																										 template<class T> class Kdata;
+#ifdef ENABLE_KUR_KDATAREAD
+																																																										 template<typename T> class Kdata;
+#endif
 																																																										 class Object {
 																																																										 public:
 																																																											 int Alias = 0;
-																																																											 template<class T> friend class Stack;
+																																																											 template<typename T> friend class Stack;
 																																																											 friend class Kstring;
 																																																											 friend class Number;
+#ifdef ENABLE_KUR_KDATAREAD
 																																																											 friend class KdataRead;
 																																																											 template<class T> friend class Kdata;
+#endif
 																																																											 Object() {};
 																																																											 Object* this_ = this;
 																																																											 Object& ValueOf() { return *this; };
@@ -165,10 +181,10 @@ namespace KUR {
 																																																										 };
 																																																										 std::string md5(std::string& src) { MD5 md5_; return md5_(src); };
 #endif // ENABLE_MD5																																															
-																																																										 class Kstring :public Object {//unsafe
+																																																										 class Kstring :public Object {//弃用 Deprecated
 																																																										 private:
-																																																											 char* data = NULL;
 																																																											 size_t len = 0;
+																																																											 char* data = NULL;
 																																																										 public:
 																																																											 template<class T> friend class Stack;
 																																																											 friend class Number;
@@ -210,11 +226,11 @@ namespace KUR {
 																																																										 };
 																																																										 template<class T = Kstring> class Stack :public Object {
 																																																										 private:
+																																																											 bool t = true;
 																																																											 int top;
 																																																											 int _max;
 																																																											 T* p_data = NULL;
 																																																											 T* p_revise = NULL;
-																																																											 bool t = true;
 																																																											 T* pop() { T* item; if (top > 0) { item = (p_data + (--top)); t = true; return item; } else { t = false; return NULL; }; };
 																																																										 public:
 																																																											 friend class Kstring;
@@ -291,8 +307,8 @@ namespace KUR {
 																																																										 };
 																																																										 template<typename T>class OneLinkList :public Object {
 																																																										 public:
-																																																											 Node<T>* head = NULL;
 																																																											 size_t _size = 1;
+																																																											 Node<T>* head = NULL;
 																																																											 OneLinkList(const T& _data) { this->head = new Node<T>(_data); };
 																																																											 OneLinkList() { this->head = new Node<T>(); };
 																																																											 Node<T>* end() { return this->get(this->_size - 1); };
@@ -302,32 +318,6 @@ namespace KUR {
 																																																											 OneLinkList<T>& insert(Node<T>* _begin, Node<T>* _end, size_t pos) { Node<T>* _pos = _begin; size_t count = 1; while (_pos != _end) { _pos = _pos->next; count++; }; Node<T>* _thisnode = this->get(pos); _end->next = _thisnode->next; _thisnode->next = _begin; this->_size += count; return *this; };
 																																																											 OneLinkList<T>& remove(size_t pos, size_t _end = -1) { std::vector<Node<T>*>vec; size_t n = _end; if (_end == -1) { _end = this->_size; } else { _end = min(_end, this->_size); }; if (pos == 0) { Node<T>* pos1 = this->head; for (size_t i = 0; i < _end; i++) { vec.push_back(pos1); pos1 = pos1->next; }; if (n != -1) { this->head = pos1->next; } else { this->head = NULL; }; for (size_t i = 0; i < vec.size(); i++) { delete vec[i]; }; this->_size -= vec.size(); return *this; }; Node<T>* _pos = this->get(pos - 1); Node<T>* __pos = _pos; for (size_t i = pos; i < _end; i++) { _pos = _pos->next; vec.push_back(_pos); }; __pos->next = _pos->next; this->_size -= vec.size(); for (size_t i = 0; i < vec.size(); i++) { delete vec[i]; }; return *this; };
 																																																											 template<typename Ty>OneLinkList<T>& for_each(Ty(*_Pfn)(KUR::Node<T>*)) { Node<T>* _pos = this->head; for (size_t i = 0; i < this->_size; i++) { (*_Pfn)(_pos); _pos = _pos->next; }; return *this; };
-																																																										 };
-																																																										 class Number :public Object {
-																																																										 public:
-																																																											 template<class T> friend class Stack;
-																																																											 friend class Kstring;
-																																																											 friend class KdataRead;
-																																																											 template<class T> friend class Kdata;
-																																																											 Number(double d, bool modes = 0) :data(d) {};
-																																																											 double data = 0;
-																																																											 constexpr static double E = 2.220446049250313e-16;
-																																																											 constexpr static double LN2 = 0.6931471805599453;
-																																																											 constexpr static double LN10 = 2.302585092994046;
-																																																											 constexpr static double LOG2E = 1.4426950408889634;
-																																																											 constexpr static double LOG10E = 0.4342944819032518;
-																																																											 constexpr static double PI = 3.141592653589793;
-																																																											 constexpr static double SQRT1_2 = 0.7071067811865476;
-																																																											 constexpr static double SQRT2 = 1.4142135623730951;
-																																																											 operator double() const { return double(data); };
-																																																											 std::string ToString() { return std::to_string(data); };
-																																																											 Number& operator=(Number& obj) { this->data = obj.data; return *this; };
-																																																											 Number operator+(Number& obj) { return (Number)(this->data + obj.data); };
-																																																											 Number operator-(Number& obj) { return (Number)(this->data - obj.data); };
-																																																											 Number operator*(Number& obj) { return (Number)(this->data * obj.data); };
-																																																											 Number operator/(Number& obj) { return (Number)(this->data / obj.data); };
-																																																											 friend std::ostream& operator<<(std::ostream& os, Number& obj) { os << obj.data; return os; };
-																																																											 static size_t FindAllCount(std::string str, std::string sub) { size_t count = 0; size_t index = 0; size_t len = str.length(); while ((index = str.find(sub, index)) < len) { count++; index++; }; return count; };
 																																																										 };
 																																																										 class KMiscellaneous {
 																																																										 public:
@@ -342,19 +332,21 @@ namespace KUR {
 																																																											 static inline std::string* encryption(const std::string key, const std::wstring& wstr) { using namespace std; const int max = 1024; const char* p = key.c_str(); const int p_len = (int)key.length(); const unsigned int MAX_ui = 4294967295; unsigned int seed = 0, seed_max = 0; for (int i = 0; i < p_len && seed_max < MAX_ui; i++) { seed = seed_max; seed_max += int(*(p + i)); }; srand(seed); wstring ws = wstr + L"   "; const wchar_t* ws_p = ws.c_str(); int ws_len = (int)(ws.length() - 2); int* ws_seed = new int[ws_len]; int* ws_int = new int[ws_len]; int* ws_res = new int[ws_len]; int* ws_res_len = new int[ws_len]; string keylen, ws_result; for (int i = 0; i < ws_len; i++) { ws_int[i] = int(ws_p[i]); ws_seed[i] = rand(); ws_res[i] = ws_int[i] + ws_seed[i]; ws_res_len[i] = (int)to_string(ws_res[i]).length(); keylen += to_string(ws_res_len[i]); ws_result += to_string(ws_res[i]); }; string key_ = "K" + keylen; string* resu = new string(ws_result + key_); delete[] ws_seed; delete[] ws_int; delete[] ws_res; delete[] ws_res_len; return resu; };
 																																																											 static inline std::wstring* decrypt(const std::string key, const std::string& lines) { using namespace std; const int max = 1024; const char* p = key.c_str(); const int p_len = (int)key.length(); const unsigned int MAX_ui = 4294967295; unsigned int seed = 0, seed_max = 0; for (int i = 0; i < p_len && seed_max < MAX_ui; i++) { seed = seed_max; seed_max += int(*(p + i)); }; srand(seed); const char* ch = lines.c_str(); const int lens = (int)(lines.length() - 2); KUR::Stack<char> C(lens); int lens_ = 0; for (int i = lens; i >= 0 && !(*(ch + i) == 'K'); i--) { lens_ = i - 1; *(ch + i) >> C; }; KUR::Stack<int> I(lens); char* ch_ = new char[lens_]; *ch_ = '1'; for (int i = 0; i < lens_; i++) { *(ch_ + i) = *(ch + i); }; int count = 0, Num, num; char k; char* NUM = new char[6]; int rand_ = 0; NUM[5] = '\0'; while (!C.isempty()) { k << C; Num = int(k) - 48; num = 0; for (int i = 0; i < 5; ++i) { NUM[i] = '\0'; }; for (int i = count; i < count + Num; ++i) { NUM[num] = *(ch_ + i); num++; }; count += Num; rand_ = rand(); I << (atoi(NUM) - rand_); }; KUR::Stack<wchar_t> W(lens); wchar_t W_; int w; while (!I.isempty()) { w << I; W_ = wchar_t(w); W << W_; }; wstring ws; wchar_t wt; while (!W.isempty()) { wt << W; ws += wt; }; delete[] ch_; delete[] NUM; wstring* ws_ = new wstring; *ws_ = ws; return ws_; };
 																																																										 };
+#ifdef ENABLE_KUR_KDATAREAD
 																																																										 template<class T = Kstring> class Kdata :public Object {
 																																																										 private:
 																																																											 void Start(Kstring key) { using namespace std; size_t sub1 = Source.to_find("["); size_t sub2 = Source.to_find("]"); std::string str_ = Source.str(); Kstring ks = str_.substr(sub1, sub2 - sub1).c_str(); auto str = Stack<>::SubLineAsString(ks, "{", "}", length); sub = new Stack<int>(str->length()); std::string s; while (!str->isempty()) { str->pop(s); (*sub) << atoi(s.c_str()); }; sub->flip(); size_t fir = Source.to_find("%"); size_t fir1 = Source.to_find("]\""); size_t end = Source.to_find("\"\""); name = Source.ToString().substr(fir + 1, sub1 - fir - 1).c_str(); Source = Source.ToString().substr(fir1 + 2, end - fir1 - 2).c_str(); using namespace KUR; wstring* ws = KMiscellaneous::decrypt(key.str(), Source.str()); Source = ToString_(*ws).c_str(); };
 																																																											 int id;
 																																																										 public:
 																																																											 int length;
+																																																											 Stack<int>* sub;
 																																																											 Kstring Source;
 																																																											 Kstring name;
 																																																											 int ID() { return id; };
 																																																											 Kdata(T& source, const int len, const int id_, Kstring key) { id = id_; length = len; Source = source; Start(key); };
-																																																											 Stack<int>* sub;
 																																																											 ~Kdata() { delete sub; };
 																																																										 };
+#endif // ENABLE_KUR_KDATAREAD
 																																																										 static inline float Q_rsqrt(float number) { float x2 = number * 0.5F, y = number; const float threehalfs = 1.5F; long i = *(long*)&y; i = 0x5f3759df - (i >> 1); y = *(float*)&i; y = y * (threehalfs - (x2 * y * y)); return y; };
 #ifdef _BITSET_
 																																																										 template<class T = int> inline void cout_bit(T& t) { std::cout << std::bitset<sizeof(t) * 8>(t) << t; };
@@ -374,17 +366,18 @@ namespace KUR {
 																																																											 static inline KUR::Stack<KUR::Kstring>* FileReadAsStack(const std::string res, int mode = 0) { using namespace std; const int max = 1024; char line[max]; FILE* fp1 = fopen(res.c_str(), "r"); if (fp1 == nullptr) { error(mode); if (mode == 0) { return  new KUR::Stack<KUR::Kstring>(); }; }; fseek(fp1, 0, 2); long readbuffer_ = ftell(fp1); rewind(fp1); int readbuffer = readbuffer_ / max + 1; KUR::Stack<KUR::Kstring>* S = new KUR::Stack<KUR::Kstring>(readbuffer); while (fgets(line, max, fp1) != NULL) { *S << line; }; return S; };//unsafe
 																																																											 static inline std::string FileReadAsString(const std::string res, int mode = 0) { KUR::Stack<KUR::Kstring>* K = FileReadAsStack(res, mode); std::string ress = KUR::Stack<std::string>::AsString(*K); delete K; return ress; };
 																																																										 };
-
-																																																										 class KdataRead :public Object {//The memory recovery is defective!!!
+#ifdef ENABLE_KUR_KDATAREAD
+																																																										 //弃用 Deprecated
+																																																										 class KdataRead :public Object {//The memory recovery is defective!!! 
 																																																										 private:
-																																																											 KUR::Kstring err;
+																																																											 int length;
+																																																											 int this_len;
 																																																											 int klen;
-																																																											 void Create() { using namespace std; int id = basic_data->length() - 1; std::string str; KUR::Kstring ks; while (!basic_data->isempty()) { basic_data->pop(str); ks = str.c_str(); auto o = (new KUR::Kdata<KUR::Kstring>(ks, klen, id, keys)); (*data) << o; id--; }; };
 																																																											 KUR::Stack<std::string>* basic_data;
 																																																											 KUR::Stack<int>* ptr;
 																																																											 KUR::Kstring ktr;
-																																																											 int length;
-																																																											 int this_len;
+																																																											 KUR::Kstring err;
+																																																											 void Create() { using namespace std; int id = basic_data->length() - 1; std::string str; KUR::Kstring ks; while (!basic_data->isempty()) { basic_data->pop(str); ks = str.c_str(); auto o = (new KUR::Kdata<KUR::Kstring>(ks, klen, id, keys)); (*data) << o; id--; }; };
 																																																										 public:
 																																																											 KUR::Kstring keys;
 																																																											 template<class T> friend class KUR::Stack;
@@ -394,7 +387,7 @@ namespace KUR {
 																																																											 KUR::Kstring address;
 																																																											 int GetMaxLength() { return length; };
 																																																											 int GetLen() { return this_len; };
-																																																											 KdataRead(_In_ std::string res, _In_ KUR::Kstring key, __in_opt int kdatalen = 16, __in_opt int addlength = 256) { keys = key; address = res.c_str(); klen = kdatalen; KUR::Kstring data_ = KUR::KMiscellaneous::ReadData(res).c_str(); int Stacklen = (int)KUR::Number::FindAllCount(data_.str(), ","); this_len = Stacklen; Stacklen += addlength;  basic_data = KUR::Stack<>::SubLineAsString(data_, "@$", "$@", Stacklen); data = new KUR::Stack<Kdata<KUR::Kstring>*>(Stacklen >= basic_data->length() ? Stacklen : basic_data->length()); Create(); delete basic_data; length = Stacklen; };
+																																																											 KdataRead(_In_ std::string res, _In_ KUR::Kstring key, __in_opt int kdatalen = 16, __in_opt int addlength = 256) { keys = key; address = res.c_str(); klen = kdatalen; KUR::Kstring data_ = KUR::KMiscellaneous::ReadData(res).c_str(); int Stacklen = (int)KUR::FindAllCount(data_.str(), ","); this_len = Stacklen; Stacklen += addlength;  basic_data = KUR::Stack<>::SubLineAsString(data_, "@$", "$@", Stacklen); data = new KUR::Stack<Kdata<KUR::Kstring>*>(Stacklen >= basic_data->length() ? Stacklen : basic_data->length()); Create(); delete basic_data; length = Stacklen; };
 																																																											 ~KdataRead() { data->DeleteEachPoint(); };
 																																																											 KUR::Kdata<KUR::Kstring>& Check(KUR::Kstring& ks, const int err = 0) { int len = data->length(); for (int i = 0; i < len; i++) { if (ks == (*data)[i]->name) { return *((*data)[i]); }; }; return *((*data)[err]); };
 																																																											 KUR::Kdata<KUR::Kstring>& Check(const int id_) { return *((*data)[this_len - id_ - 1]); };
@@ -407,6 +400,7 @@ namespace KUR {
 																																																											 void Save() { std::fstream F_(address.str(), std::ios::out); for (int i = 0; i < this_len; i++) { F_ << "@$%" << (*this)[i].name << StackIntAsString(*(*this)[i].sub).str() << "\"" << *KUR::KMiscellaneous::encryption(keys.str(), KUR::ToWstring_((*this)[i].Source.str())) << "\"\"$@,\n"; }; F_.close(); };
 																																																										 };
 																																																										 KUR::Kdata<KUR::Kstring>& end(KUR::KdataRead* kr) { using namespace KUR; return kr->Check(kr->GetLen()); };
+#endif // ENABLE_KUR_KDATAREAD
 																																																										 template<class Cl_Pn, class T>class Bind2c :public Object {//The parameter T is the first parameter of the function (class usage)
 																																																										 public:
 																																																											 T val_;
@@ -540,7 +534,7 @@ namespace KUR {
 
 #endif // USE_ASCII
 #ifdef Windows_SOCK_ENABLE_KURZER
-																																																										 class TCP_INTERFACE {
+																																																										 class TCP_INTERFACE {//弃用 Deprecated
 																																																										 public:
 																																																											 TCP_INTERFACE() { WSADATA wsaData; if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) { std::cout << ("\nWSAStartup failed!"); }; };
 																																																											 ~TCP_INTERFACE() { WSACleanup(); };
@@ -574,8 +568,100 @@ namespace KUR {
 																																																											 void error_die(const char* str) { printf("[hint]%s failed:%d", str, WSAGetLastError()); };
 																																																										 };
 #endif
+#ifdef __KURBOOST
+																																																										 namespace bst {//boost support
+
+																																																										 };
+#endif
+#ifdef __KURLANGUAGE
+																																																										 namespace Ksi {
+																																																											 class VALUETYPE {
+																																																											 public:
+																																																												 enum TYPE {
+																																																													 String = 0,
+																																																													 Number = 1,
+																																																													 Function = 2,
+																																																													 Array = 3,
+																																																													 Class = 4,
+																																																													 Null = 5,
+																																																													 Undefined = 6,
+																																																													 Bool = 7,
+																																																													 Oper = 8
+																																																												 };
+
+																																																											 };
+																																																											 using _Number = double;
+																																																											 using _String = std::string;
+																																																											 template<typename T>class Value :public Object {
+																																																											 public:
+																																																												 using _TY = T;
+																																																												 int& type = this->Alias;
+																																																												 T* value = NULL;
+																																																												 Value(const T& t) {
+																																																													 value = new T;
+																																																													 *value = t;
+																																																												 };
+																																																												 Value(const T& t, const int _type) {
+																																																													 value = new T;
+																																																													 *value = t;
+																																																													 this->type = _type;
+																																																												 };
+																																																												 Value() {
+																																																													 value = new T;
+																																																												 };
+																																																												 ~Value() { delete this->value; };
+																																																											 };
+																																																											 class Interpreter :public Object {
+																																																											 private:
+																																																											 public:
+																																																												 Interpreter() {};
+																																																												 Value<std::string>RET();
+																																																												 template<typename T>void Eval(Value<T>& val) {
+																																																													 Print(val);
+																																																												 };
+
+																																																											 };
+																																																											 template<typename T>bool isNumber(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Number) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isString(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::String) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isFunction(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Function) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isArray(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Array) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isClass(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Class) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isNull(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Null) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isUndefined(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Undefined) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isBool(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Bool) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>bool isOper(Value<T>& val) {
+																																																												 if (val.type == VALUETYPE::Oper) { return true; } else { return false; };
+																																																											 };
+																																																											 template<typename T>void Print(Value<T>& val) {
+																																																												 std::cout << *val.value;
+																																																											 };
+																																																											 class AST {
+
+																																																											 };
+																																																											 class Parser {
+
+																																																											 };
+																																																											 class Token {
+
+																																																											 };
+
+																																																										 };
+#endif																																																										 
 };
-#define _Kstack KUR::Stack
-#define _Kstring KUR::Kstring
-#define _KR KUR::
 #endif
